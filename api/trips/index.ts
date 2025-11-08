@@ -3,9 +3,9 @@ export const config = {
 };
 
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import sql, { query } from './utils/db'
-import { transformTripFromDB, transformTripToDB, parseCSVLine } from './utils/helpers'
-import { Trip } from './utils/types'
+import sql, { query } from '../utils/db'
+import { transformTripFromDB, transformTripToDB, parseCSVLine } from '../utils/helpers'
+import { Trip } from '../utils/types'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, query: queryParams, body } = req
