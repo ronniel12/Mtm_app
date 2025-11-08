@@ -1,0 +1,38 @@
+{
+  "name": "mtm-enterprise-app",
+  "version": "1.0.0",
+  "description": "MTM Enterprise App - Serverless TypeScript Refactoring",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=functions",
+    "lint": "npm run lint --workspace=frontend && npm run lint --workspace=functions",
+    "format": "npm run format --workspace=frontend && npm run format --workspace=functions",
+    "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=functions"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3"
+  },
+  "keywords": [
+    "vue",
+    "typescript",
+    "serverless",
+    "neon",
+    "postgresql"
+  ],
+  "author": "MTM Enterprise",
+  "license": "ISC"
+}
