@@ -46,8 +46,7 @@ app.use(cors({
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
   console.error('❌ DATABASE_URL not found in environment variables');
-  console.log('💡 Make sure .env file exists with DATABASE_URL');
-  process.exit(1);
+  console.log('💡 Make sure DATABASE_URL is set in Vercel environment variables');
 }
 const sql = neon(DATABASE_URL);
 
@@ -62,16 +61,7 @@ const query = async (text, params = []) => {
   }
 };
 
-// Test database connection
-(async () => {
-  try {
-    await query('SELECT 1');
-    console.log('✅ Connected to Neon database');
-  } catch (error) {
-    console.error('❌ Database connection error:', error.message);
-    console.log('💡 Make sure DATABASE_URL environment variable is set');
-  }
-})();
+// Database connection will be tested on first request
 
 // API Routes
 
