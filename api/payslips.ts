@@ -3,7 +3,7 @@ export const config = {
 };
 
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import { query } from '../functions/utils/db'
+import { query } from '../utils/db'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, query: queryParams, body } = req
