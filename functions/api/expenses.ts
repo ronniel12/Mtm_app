@@ -1,5 +1,5 @@
 export const config = {
-  runtime: 'nodejs18.x',
+  runtime: '@vercel/node@18',
 };
 
 import { VercelRequest, VercelResponse } from '@vercel/node'
