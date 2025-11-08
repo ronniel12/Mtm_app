@@ -10,6 +10,8 @@ import { Trip } from '../utils/types'
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, query: queryParams, body } = req
 
+  console.log('🚚 Trips API called:', { method, url: req.url, query: queryParams })
+
   try {
     switch (method) {
       case 'GET':

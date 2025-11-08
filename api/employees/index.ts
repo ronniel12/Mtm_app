@@ -8,6 +8,8 @@ import { query } from '../utils/db'
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, query: queryParams, body } = req
 
+  console.log('👥 Employees API called:', { method, url: req.url, query: queryParams })
+
   try {
     switch (method) {
       case 'GET':
