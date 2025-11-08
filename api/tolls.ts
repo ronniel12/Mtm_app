@@ -4,7 +4,7 @@ export const config = {
 
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import axios from 'axios'
-import { calculateTollFromMatrix, createFallbackRoute } from '../utils/helpers'
+import { calculateTollFromMatrix, createFallbackRoute } from '../functions/utils/helpers'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, body } = req
