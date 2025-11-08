@@ -3,15 +3,11 @@
   "outputDirectory": null,
   "installCommand": "npm install",
   "functions": {
-    "functions/api/**/*.ts": {
+    "api/**/*.ts": {
       "runtime": "@vercel/node@18"
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/functions/api/$1.ts"
-    },
     {
       "source": "/(.*)",
       "destination": "/frontend/dist/$1"
