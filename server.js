@@ -340,6 +340,21 @@ app.put('/api/expenses/:id', upload.single('receipt'), async (req, res) => {
   }
 });
 
+app.use(express.json()); // Enable JSON parsing for API routes
+
+// Serve static files from frontend/dist in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('frontend/dist'));
+
+  // Catch-all handler: send back index.html for client-side routing
+  app.get('*', (req, res) => {
+    // Only serve index.html for non-API routes
+    if (!req.path.startsWith('/api/')) {
+      res.sendFile('index.html', { root: 'frontend/dist' });
+    }
+  });
+}
+
 // Note: express.json() removed to avoid conflicts with multer
 // JSON parsing will be handled by individual routes as needed
 
@@ -393,9 +408,12 @@ app.get('/api/expenses/:id/receipt', async (req, res) => {
 
 // Catch-all for other API routes removed - specific routes handle all API calls
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`🚀 API Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  if (process.env.NODE_ENV === 'production') {
+    console.log('📦 Serving static files from frontend/dist');
+  }
   console.log('📡 Available endpoints:');
   console.log('   GET /api/employees');
   console.log('   GET /api/trips');
