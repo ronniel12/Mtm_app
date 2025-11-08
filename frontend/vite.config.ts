@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
+    proxy: process.env.VERCEL ? undefined : {
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,
