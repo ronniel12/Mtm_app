@@ -3,7 +3,13 @@
   "outputDirectory": null,
   "installCommand": "npm install",
   "functions": {
-    "api/**/*.{ts,js}": {
+    "api/trips.ts": {
+      "runtime": "@vercel/node@18"
+    },
+    "api/employees.ts": {
+      "runtime": "@vercel/node@18"
+    },
+    "api/rates.ts": {
       "runtime": "@vercel/node@18"
     }
   },
