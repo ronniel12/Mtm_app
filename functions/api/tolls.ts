@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'nodejs18.x',
+};
+
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import axios from 'axios'
 import { calculateTollFromMatrix, createFallbackRoute } from '../utils/helpers'
