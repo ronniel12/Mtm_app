@@ -729,6 +729,7 @@ defineExpose({
   margin-top: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 100%;
 }
 
 .trips-table {
@@ -738,6 +739,70 @@ defineExpose({
   background: white;
   border-radius: 8px;
   font-size: 0.85rem;
+}
+
+/* Aggressive responsive table container */
+@media (max-width: 1400px) {
+  .trips-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .trips-table {
+    min-width: 1200px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .trips-table {
+    min-width: 900px;
+    font-size: 0.8rem;
+  }
+
+  .trips-table th,
+  .trips-table td {
+    padding: 0.6rem 0.3rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .trips-table {
+    min-width: 700px;
+    font-size: 0.75rem;
+  }
+
+  .trips-table th,
+  .trips-table td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .trips-table-container {
+    border-radius: 0;
+  }
+
+  .trips-table {
+    min-width: 600px;
+    font-size: 0.7rem;
+  }
+
+  .trips-table th,
+  .trips-table td {
+    padding: 0.4rem 0.2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .trips-table {
+    min-width: 500px;
+    font-size: 0.65rem;
+  }
+
+  .trips-table th,
+  .trips-table td {
+    padding: 0.3rem 0.15rem;
+  }
 }
 
 .trips-table th {

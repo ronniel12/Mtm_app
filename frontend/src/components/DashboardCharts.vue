@@ -1,18 +1,23 @@
 <template>
   <div class="dashboard-charts">
-    <div class="dashboard-content">
-      <!-- Filters -->
-      <div class="filters-section">
-        <div class="filter-group">
-          <label class="filter-label">Report Period:</label>
-          <select v-model="filterPeriod" @change="updateFilter" class="filter-select">
-            <option value="all">All Time</option>
-            <option value="weekly">This Week</option>
-            <option value="monthly">This Month</option>
-            <option value="yearly">This Year</option>
-          </select>
-        </div>
-      </div>
+    <!-- Filters Section -->
+    <v-row class="mb-6">
+      <v-col cols="12" md="6" lg="4">
+        <v-card variant="outlined" class="pa-4">
+          <v-select
+            v-model="filterPeriod"
+            @update:model-value="updateFilter"
+            :items="filterOptions"
+            label="Report Period"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-calendar-filter"
+            hide-details
+            class="mb-0"
+          />
+        </v-card>
+      </v-col>
+    </v-row>
 
       <!-- Enhanced Stats Grid -->
       <div class="stats-grid">
@@ -109,7 +114,6 @@
           No trips recorded yet.
         </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -146,6 +150,14 @@ ChartJS.register(
 
 // Filter state
 const filterPeriod = ref('all')
+
+// Filter options for Vuetify select
+const filterOptions = [
+  { title: 'All Time', value: 'all' },
+  { title: 'This Week', value: 'weekly' },
+  { title: 'This Month', value: 'monthly' },
+  { title: 'This Year', value: 'yearly' }
+]
 
 const props = defineProps({
   trips: {
@@ -439,11 +451,12 @@ const doughnutOptions = {
 <style scoped>
 .dashboard-charts {
   width: 100%;
+  margin-top: 2rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -504,8 +517,9 @@ const doughnutOptions = {
 
 .charts-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
 }
 
@@ -634,23 +648,73 @@ const doughnutOptions = {
   border-color: #667eea;
 }
 
-@media (max-width: 768px) {
-  .filters-section {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .filter-group {
-    width: 100%;
+/* Extra small devices (phones, < 576px) */
+@media (max-width: 575.98px) {
+  .dashboard-charts {
+    margin-top: 0.5rem;
   }
 
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
   }
 
   .charts-section {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .chart-card {
+    padding: 1rem;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+  .recent-trips {
+    padding: 1rem;
+  }
+
+  .recent-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .trip-details {
+    padding: 0 0.5rem;
+  }
+}
+
+/* Small devices (phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .dashboard-charts {
+    margin-top: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .charts-section {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .chart-container {
@@ -665,6 +729,32 @@ const doughnutOptions = {
 
   .trip-date {
     align-self: flex-end;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .charts-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-container {
+    height: 280px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .charts-section {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   }
 }
 </style>

@@ -1,178 +1,206 @@
 <template>
-  <div class="payroll-statement">
-    <!-- Filters Section -->
-    <div class="filters-section">
-      <div class="date-filters">
-        <div class="filter-group">
-          <label for="start-date">Start Date:</label>
-          <input type="date" id="start-date" v-model="startDate" class="date-input" @input="filterEmployeeTripData" />
-        </div>
-        <div class="filter-group">
-          <label for="end-date">End Date:</label>
-          <input type="date" id="end-date" v-model="endDate" class="date-input" @input="filterEmployeeTripData" />
-        </div>
-        <div class="filter-group">
-          <label for="employee-name">Employee Name:</label>
-            <select id="employee-name" v-model="selectedEmployeeUuid" @change="filterEmployeeTripData" class="employee-select">
-            <option value="">Select Employee</option>
-            <option v-for="employee in employees" :key="employee.uuid" :value="employee.uuid">
-              {{ employee.name }}
-            </option>
-          </select>
-        </div>
-
+  <div class="payroll-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">💰 Payroll Management</h1>
+        <p class="page-subtitle">Generate and manage employee payslips</p>
       </div>
+    </div>
 
-      <!-- Signature Section -->
-      <div class="signature-section">
-        <div class="signature-group">
-          <label for="prepared-by">Prepared by:</label>
-          <input type="text" id="prepared-by" v-model="preparedBy" class="signature-input" placeholder="Enter name" />
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+      <div class="filters-content">
+        <div class="filter-row">
+          <div class="filter-item">
+            <label class="filter-label">Start Date</label>
+            <input type="date" v-model="startDate" @input="filterEmployeeTripData" class="filter-input" />
+          </div>
+          <div class="filter-item">
+            <label class="filter-label">End Date</label>
+            <input type="date" v-model="endDate" @input="filterEmployeeTripData" class="filter-input" />
+          </div>
+          <div class="filter-item">
+            <label class="filter-label">Employee</label>
+            <select v-model="selectedEmployeeUuid" @change="filterEmployeeTripData" class="filter-select">
+              <option value="">Select Employee</option>
+              <option v-for="employee in employees" :key="employee.uuid" :value="employee.uuid">
+                {{ employee.name }}
+              </option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label class="filter-label">Prepared By</label>
+            <input type="text" v-model="preparedBy" placeholder="Enter name" class="filter-input" />
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Company Header - Centered -->
-    <div class="company-header">
-      <div class="company-info-centered">
-        <div class="logo-container">
-          <img src="/mtmlogo.jpeg" alt="MTM Enterprise Logo" class="company-logo-large" />
-        </div>
-        <h1 class="company-name-small">MTM ENTERPRISE</h1>
-        <div class="company-details-small">
-          <p>0324 P. Damaso St. Virgen Delas Flores Baliuag Bulacan</p>
-          <p>TIN # 175-434-337-000</p>
-          <p>Mobile No. 09605638462 / Telegram No. +358-044-978-8592</p>
-        </div>
-        <h2 class="payroll-statement-title">PAYSLIP</h2>
-      </div>
+    <!-- Payslip Card - Device Width Constrained -->
+    <div class="payslip-wrapper">
+      <v-card class="payslip-card" elevation="3">
+        <v-card-text class="payslip-content">
+          <!-- Company Header -->
+          <div class="company-header-section">
+            <div class="company-logo-section">
+              <img src="/mtmlogo.jpeg" alt="MTM Enterprise Logo" class="company-logo" />
+            </div>
+            <div class="company-info-section">
+              <h1 class="company-name">MTM ENTERPRISE</h1>
+              <div class="company-details">
+                <p>0324 P. Damaso St. Virgen Delas Flores Baliuag Bulacan</p>
+                <p>TIN # 175-434-337-000</p>
+                <p>Mobile No. 09605638462 / Telegram No. +358-044-978-8592</p>
+              </div>
+            </div>
+            <div class="payslip-title-section">
+              <h2 class="payslip-title">PAYSLIP</h2>
+            </div>
+          </div>
+
+          <!-- Employee Information -->
+          <div class="employee-info-grid">
+            <div class="employee-details">
+              <div class="info-row">
+                <span class="info-label">Employee Name:</span>
+                <span class="info-value">{{ selectedEmployeeName }}</span>
+              </div>
+            </div>
+            <div class="payslip-details">
+              <div class="info-row">
+                <span class="info-label">Payslip Number:</span>
+                <span class="info-value">{{ payslipNumber }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Period Covered:</span>
+                <span class="info-value">{{ formatPeriod() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Date Generated:</span>
+                <span class="info-value">{{ formatDate(new Date()) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scrollable Table Container -->
+          <div class="table-scroll-container">
+            <table class="payslip-table">
+              <thead class="table-header">
+                <tr class="header-row">
+                  <th class="col-date">DATE</th>
+                  <th class="col-plate">PLATE NUMBER</th>
+                  <th class="col-invoice">INVOICE NUMBER</th>
+                  <th class="col-destination">DESTINATION</th>
+                  <th class="col-bags">BAGS</th>
+                  <th class="col-position">POS</th>
+                  <th class="col-rate">RATE</th>
+                  <th class="col-total">TOTAL</th>
+                </tr>
+              </thead>
+              <tbody class="table-body">
+                <!-- Data rows -->
+                <tr v-for="(trip, index) in filteredEmployeeTrips" :key="trip.id" class="data-row" :class="{ 'alt-row': index % 2 === 1 }">
+                  <td class="col-date">{{ formatDateShort(trip.date) }}</td>
+                  <td class="col-plate">{{ trip.truckPlate }}</td>
+                  <td class="col-invoice">{{ trip.invoiceNumber }}</td>
+                  <td class="col-destination">{{ trip.fullDestination }}</td>
+                  <td class="col-bags text-center">{{ trip.numberOfBags }}</td>
+                  <td class="col-position text-center">{{ trip._role }}</td>
+                  <td class="col-rate text-right">{{ trip._rate ? formatCurrency(trip._rate - 4) : '0.00' }}</td>
+                  <td class="col-total text-right">{{ trip._rate && trip.numberOfBags ? formatCurrency((trip._rate - 4) * trip.numberOfBags * trip._commission) : '0.00' }}</td>
+                </tr>
+
+                <!-- Spacer row -->
+                <tr class="spacer-row">
+                  <td colspan="8" class="spacer-cell"></td>
+                </tr>
+
+                <!-- Totals section -->
+                <tr class="totals-row">
+                  <td colspan="4" class="totals-label-cell">
+                    <span class="totals-label">GROSS PAY:</span>
+                  </td>
+                  <td class="totals-bags-cell text-center">
+                    <span class="totals-bags">{{ totalBags }}</span>
+                  </td>
+                  <td colspan="2" class="empty-cell"></td>
+                  <td class="totals-amount-cell text-right">
+                    <span class="totals-amount">₱{{ formatCurrency(totalPay) }}</span>
+                  </td>
+                </tr>
+
+                <!-- Individual Deductions rows -->
+                <tr v-for="(deduction, index) in deductions" :key="deduction.name + index" class="deduction-row">
+                  <td colspan="7" class="deduction-label-cell">
+                    <span class="deduction-label">
+                      {{ deduction.name }}
+                      <span class="deduction-indicator">
+                        ({{ deduction.type === 'percentage' ? deduction.value + '%' : '₱' + formatCurrency(deduction.value) }})
+                      </span>
+                    </span>
+                  </td>
+                  <td class="deduction-amount-cell text-right">
+                    <span class="deduction-amount">
+                      -₱{{ formatCurrency(deduction.type === 'percentage' ? (totalPay * deduction.value / 100) : deduction.value) }}
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Total Deductions row -->
+                <tr v-if="deductions.length > 0" class="total-deductions-row">
+                  <td colspan="7" class="total-deductions-label-cell">
+                    <span class="total-deductions-label">TOTAL DEDUCTIONS:</span>
+                  </td>
+                  <td class="total-deductions-amount-cell text-right">
+                    <span class="total-deductions-amount">-₱{{ formatCurrency(totalDeductions) }}</span>
+                  </td>
+                </tr>
+
+                <!-- Net Pay row -->
+                <tr v-if="deductions.length > 0" class="net-pay-row">
+                  <td colspan="7" class="net-pay-label-cell">
+                    <span class="net-pay-label">NET PAY:</span>
+                  </td>
+                  <td class="net-pay-amount-cell text-right">
+                    <span class="net-pay-amount">₱{{ formatCurrency(netPay) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Prepared by Section -->
+          <div class="prepared-by-section">
+            <div class="prepared-by-content">
+              <span class="prepared-by-label">Prepared by:</span>
+              <span class="prepared-by-value">{{ preparedBy || '_______________________________' }}</span>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
     </div>
 
-    <!-- Employee Information -->
-    <div class="employee-info-section">
-      <div class="employee-info-left">
-        <div class="employee-name-info">
-          <strong>Employee Name:</strong> {{ selectedEmployeeName }}
-        </div>
-
+    <!-- Action Buttons -->
+    <div class="action-buttons-section">
+      <div class="action-buttons-grid">
+        <button class="action-btn btn-deductions" @click="openDeductionsModal">
+          <span class="btn-icon">💰</span>
+          <span class="btn-text">Deductions</span>
+        </button>
+        <button class="action-btn btn-save" @click="savePayslip">
+          <span class="btn-icon">💾</span>
+          <span class="btn-text">Save Payslip</span>
+        </button>
+        <button class="action-btn btn-excel" @click="exportExcel">
+          <span class="btn-icon">📊</span>
+          <span class="btn-text">Export Excel</span>
+        </button>
+        <button class="action-btn btn-print" @click="printStatement">
+          <span class="btn-icon">🖨️</span>
+          <span class="btn-text">Print</span>
+        </button>
       </div>
-      <div class="employee-info-right">
-        <div class="payslip-number-info">
-          <strong>Payslip Number:</strong> {{ payslipNumber }}
-        </div>
-        <div class="period-info">
-          <strong>Period Covered:</strong> {{ formatPeriod() }}
-        </div>
-        <div class="generated-info">
-          <strong>Date Generated:</strong> {{ formatDate(new Date()) }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Payroll Table -->
-    <div class="payroll-table-container">
-      <table class="payroll-table">
-        <thead>
-          <tr class="header-row">
-            <th class="date-col">DATE</th>
-            <th class="plate-col">PLATE NUMBER</th>
-            <th class="invoice-col">INVOICE NUMBER</th>
-            <th class="destination-col">DESTINATION</th>
-            <th class="bags-col">BAGS</th>
-            <th class="position-marker">POS</th>
-            <th class="rate-col">RATE</th>
-            <th class="total-col">TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Data rows -->
-          <tr v-for="(trip, index) in filteredEmployeeTrips" :key="trip.id" class="data-row" :class="{ 'alt-row': index % 2 === 1 }">
-            <td class="date-cell">{{ formatDateShort(trip.date) }}</td>
-            <td class="plate-cell">{{ trip.truckPlate }}</td>
-            <td class="invoice-cell">{{ trip.invoiceNumber }}</td>
-            <td class="destination-cell">{{ trip.fullDestination }}</td>
-            <td class="bags-cell text-center">{{ trip.numberOfBags }}</td>
-            <td class="position-marker text-center">{{ trip._role }}</td>
-            <td class="rate-cell text-right">{{ trip._rate ? formatCurrency(trip._rate - 4) : '0.00' }}</td>
-            <td class="total-cell text-right">{{ trip._rate && trip.numberOfBags ? formatCurrency((trip._rate - 4) * trip.numberOfBags * trip._commission) : '0.00' }}</td>
-          </tr>
-
-          <!-- Spacer row -->
-          <tr class="spacer-row">
-            <td colspan="7"></td>
-          </tr>
-
-          <!-- Totals section -->
-          <tr class="totals-row">
-            <td class="text-left fw-bold totals-label">GROSS PAY:</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-center fw-bold totals-bags">{{ totalBags }}</td>
-            <td></td>
-            <td></td>
-            <td class="text-center fw-bold totals-amount">₱{{ formatCurrency(totalPay) }}</td>
-          </tr>
-
-          <!-- Individual Deductions rows - show each deduction itemized -->
-          <tr v-for="(deduction, index) in deductions" :key="deduction.name + index" class="individual-deduction-row">
-            <td class="text-left fw-bold individual-deduction-label">
-              {{ deduction.name }}
-              <span class="deduction-type-indicator">
-                ({{ deduction.type === 'percentage' ? deduction.value + '%' : '₱' + formatCurrency(deduction.value) }})
-              </span>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-center fw-bold individual-deduction-amount">
-              -₱{{ formatCurrency(deduction.type === 'percentage' ? (totalPay * deduction.value / 100) : deduction.value) }}
-            </td>
-          </tr>
-
-          <!-- Total Deductions summary row - only show if deductions exist -->
-          <tr v-if="deductions.length > 0" class="total-deductions-row">
-            <td class="text-left fw-bold total-deductions-label">TOTAL DEDUCTIONS:</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-center fw-bold total-deductions-amount">-₱{{ formatCurrency(totalDeductions) }}</td>
-          </tr>
-
-          <!-- Net Pay row - only show if deductions exist -->
-          <tr v-if="deductions.length > 0" class="net-pay-row">
-            <td class="text-left fw-bold net-pay-label">NET PAY:</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-center fw-bold net-pay-amount">₱{{ formatCurrency(netPay) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Prepared by Section -->
-    <div class="prepared-by-section">
-      <div class="prepared-by-info">
-        <strong>Prepared by:</strong> {{ preparedBy || '_______________________________' }}
-      </div>
-    </div>
-
-    <!-- Control Buttons -->
-    <div class="payroll-controls">
-      <button class="btn btn-deductions" @click="openDeductionsModal">Deductions</button>
-      <button class="btn btn-save" @click="savePayslip">Save Payslip</button>
-      <button class="btn btn-excel" @click="exportExcel">Export to Excel</button>
-      <button class="btn btn-print" @click="printStatement">Print Statement</button>
     </div>
 
     <!-- Deductions Modal -->
@@ -1270,526 +1298,531 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Professional Payroll Statement Styles */
-.payroll-statement {
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem; /* Matching table font size */
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: white;
-  color: #000;
+/* ==========================================================================
+   PAYROLL VIEW - SIMPLE & RESPONSIVE LAYOUT
+   ========================================================================== */
+
+/* Main Container - Simple Content Layout (like ExpensesView) */
+.payroll-container {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Filters Section */
-.filters-section {
+/* Page Header - Content Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.header-content {
+  max-width: 100%;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.25rem 0;
+}
+
+.page-subtitle {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Filters Bar - Compact & Centered */
+.filters-bar {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.filters-content {
+  padding: 1.5rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: end;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 160px;
+}
+
+.filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-input,
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Payslip Wrapper - Responsive Layout */
+.payslip-wrapper {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.payslip-card {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.payslip-content {
+  padding: 2rem;
+}
+
+/* Company Header Section */
+.company-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.company-logo-section {
+  flex-shrink: 0;
+}
+
+.company-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.company-info-section {
+  flex: 1;
+  text-align: center;
+  min-width: 200px;
+}
+
+.company-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 1px;
+}
+
+.company-details {
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.company-details p {
+  margin: 0.2rem 0;
+}
+
+.payslip-title-section {
+  flex-shrink: 0;
+}
+
+.payslip-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #dc2626;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Employee Information Grid */
+.employee-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: #f8fafc;
   border-radius: 8px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e2e8f0;
 }
 
-.signature-section {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid #dee2e6;
-}
-
-.signature-group {
+.employee-details,
+.payslip-details {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.signature-input {
-  padding: 0.5rem;
-  border: 2px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
-  width: 200px;
-}
-
-.date-filters {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-group label {
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #495057;
-}
-
-.date-input, .employee-select, .position-select {
-  padding: 0.5rem;
-  border: 2px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
-  width: 180px;
-}
-
-.employee-select, .position-select {
-  width: 200px;
-}
-
-.date-input:focus, .employee-select:focus, .position-select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* Centered Company Header */
-.company-header {
-  text-align: center;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #000;
-  padding-bottom: 0.5rem;
-}
-
-.company-info-centered {
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  display: flex;
-  gap: 0;
-}
-
-.company-logo-name {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.logo-container {
-  text-align: center;
-  margin-bottom: 0.25px;
-}
-
-.company-logo-large {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-}
-
-.company-name-small {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0;
-  color: #000;
-  letter-spacing: 1px;
-}
-
-.company-details-small {
-  font-size: 0.8rem;
-  line-height: 1.2;
-  margin-bottom: 0.5rem;
-}
-
-.company-details-small p {
-  margin: 0;
-}
-
-.payroll-statement-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #000;
-  margin: 0;
-  letter-spacing: 1px;
-}
-
-/* Employee Information Section */
-.employee-info-section {
+.info-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #374151;
   font-size: 0.85rem;
-  align-items: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.employee-info-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  align-items: flex-start;
-}
-
-.employee-name-info,
-.employee-position-info {
-  font-weight: bold;
-}
-
-.employee-info-right {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  align-items: flex-end;
-}
-
-.payslip-number-info,
-.period-info,
-.generated-info {
-  font-weight: bold;
+.info-value {
+  font-weight: 500;
+  color: #1f2937;
   text-align: right;
 }
 
-/* Payroll Table */
-.payroll-table-container {
-  margin-bottom: 2rem;
+/* Scrollable Table Container - All Data Visible */
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible; /* Allow all content to show vertically */
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
 }
 
-.payroll-table {
-  width: 100%;
+.payslip-table {
+  width: 100% !important;
+  max-width: 100% !important;
   border-collapse: collapse;
   font-size: 0.75rem;
-  border: 1px solid #000;
+  font-family: 'Courier New', monospace;
+  table-layout: auto;
+  min-width: auto !important; /* Allow table to shrink to fit card */
 }
 
-.payroll-table .header-row th {
-  background: #f0f0f0;
-  border: 1px solid #000;
-  padding: 0.5rem 0.25rem;
+.table-header {
+  background: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.header-row th {
+  padding: 1rem 0.75rem;
   text-align: center;
-  font-weight: bold;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
   font-size: 0.7rem;
-  vertical-align: middle;
+  letter-spacing: 0.5px;
+  border-right: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  z-index: 10;
 }
 
-.payroll-table .data-row {
-  border: 1px solid #000;
+.header-row th:last-child {
+  border-right: none;
 }
 
-.payroll-table .data-row:hover {
-  background: #f9f9f9;
+.table-body {
+  background: white;
 }
 
-.payroll-table .alt-row {
-  background: #fafafa;
+.data-row {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
 }
 
-.payroll-table .data-row td {
-  padding: 0.5rem 0.25rem;
-  border: none;
+.data-row:hover {
+  background: #f8fafc;
+}
+
+.alt-row {
+  background: #fafbfc;
+}
+
+.data-row td {
+  padding: 0.75rem;
   text-align: center;
+  border-right: 1px solid #f1f5f9;
   vertical-align: middle;
 }
 
-/* Table column widths */
-.date-cell { min-width: 80px; }
-.plate-cell { min-width: 70px; }
-.invoice-cell { min-width: 90px; }
-.destination-cell { min-width: 200px; }
-.bags-cell { min-width: 60px; text-align: center; }
-.rate-cell { min-width: 80px; text-align: right; }
-.total-cell { min-width: 100px; text-align: right; }
+.data-row td:last-child {
+  border-right: none;
+}
 
-.date-col { width: auto; }
-.plate-col { width: auto; }
-.invoice-col { width: auto; }
-.destination-col { width: auto; }
-.bags-col { width: 15%; }
-.rate-col { width: 12%; }
-.total-col { width: 15%; }
+/* Table Column Classes */
+.col-date { min-width: 100px; }
+.col-plate { min-width: 120px; }
+.col-invoice { min-width: 140px; }
+.col-destination { min-width: 250px; text-align: left; }
+.col-bags { min-width: 80px; }
+.col-position { min-width: 60px; }
+.col-rate { min-width: 100px; text-align: right; }
+.col-total { min-width: 120px; text-align: right; }
 
-/* Totals Row */
+/* Special Table Rows */
 .totals-row {
-  background: #e0e0e0;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border: 2px solid #000;
+  background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+  border-top: 2px solid #0277bd;
+  border-bottom: 2px solid #0277bd;
+  font-weight: 700;
 }
 
 .totals-row td {
-  padding: 0.75rem 0.25rem;
-  border: none;
+  padding: 1rem 0.75rem;
+  color: #0d47a1;
 }
 
-.totals-label {
+.totals-label-cell {
+  text-align: left;
   font-size: 0.9rem;
 }
 
-.totals-bags {
-  text-align: center;
-}
-
-.totals-amount {
+.totals-bags-cell {
   font-size: 1rem;
-  color: #000;
 }
 
-/* Deductions Row */
-.deductions-row {
-  background: #fff3cd;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border: 1px solid #000;
+.totals-amount-cell {
+  font-size: 1.1rem;
+  color: #0d47a1;
 }
 
-.deductions-row td {
-  padding: 0.5rem 0.25rem;
-  border: none;
+.deduction-row {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
 }
 
-.deductions-label {
-  font-size: 0.9rem;
-  color: #000;
+.deduction-row td {
+  color: #e65100;
+  font-weight: 500;
 }
 
-.deductions-amount {
-  font-size: 1rem;
-  color: #000;
-}
-
-/* Individual Deductions rows - show each deduction itemized */
-.individual-deduction-row {
-  background: #fefefa;
-  font-size: 0.75rem; /* Same as table font size */
-  font-weight: normal;
-  border: 1px solid #000;
-}
-
-.individual-deduction-row td {
-  padding: 0.4rem 0.25rem;
-  border: none;
-}
-
-.individual-deduction-label {
-  font-size: 0.75rem; /* Match table font size */
-  color: #000;
-}
-
-.individual-deduction-amount {
-  font-size: 0.75rem; /* Match table font size */
-  color: #000;
-}
-
-.deduction-type-indicator {
-  font-size: 0.7rem;
-  color: #6c757d;
-  font-weight: normal;
-  margin-left: 0.5rem;
-}
-
-/* Total Deductions Row */
 .total-deductions-row {
-  background: #fff3cd;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border: 1px solid #000;
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border-top: 2px solid #d32f2f;
+  border-bottom: 2px solid #d32f2f;
+  font-weight: 700;
 }
 
 .total-deductions-row td {
-  padding: 0.5rem 0.25rem;
-  border: none;
+  color: #b71c1c;
 }
 
-.total-deductions-label {
-  font-size: 0.9rem;
-  color: #000;
-}
-
-.total-deductions-amount {
-  font-size: 1rem;
-  color: #000;
-}
-
-/* Net Pay Row */
 .net-pay-row {
-  background: #d1ecf1;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border: 2px solid #28a745;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border-top: 3px solid #2e7d32;
+  border-bottom: 3px solid #2e7d32;
+  font-weight: 700;
 }
 
 .net-pay-row td {
-  padding: 0.75rem 0.25rem;
-  border: none;
-}
-
-.net-pay-label {
-  font-size: 0.9rem;
-  color: #000;
-}
-
-.net-pay-amount {
-  font-size: 1.2rem;
-  color: #000;
+  color: #1b5e20;
+  font-size: 1.1rem;
 }
 
 /* Prepared by Section */
 .prepared-by-section {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.prepared-by-info {
-  font-weight: bold;
-}
-
-.text-center {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
   text-align: center;
 }
 
-.text-right {
-  text-align: right;
-}
-
-.fw-bold {
-  font-weight: bold;
-}
-
-/* Control Buttons */
-.payroll-controls {
-  display: flex;
+.prepared-by-content {
+  display: inline-flex;
+  align-items: center;
   gap: 1rem;
-  justify-content: center;
+  padding: 1rem 2rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.prepared-by-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.prepared-by-value {
+  font-weight: 500;
+  color: #1f2937;
+  border-bottom: 1px dashed #9ca3af;
+  min-width: 300px;
+  text-align: center;
+  padding: 0.25rem;
+}
+
+/* Action Buttons Section */
+.action-buttons-section {
+  text-align: center;
   margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid #ccc;
 }
 
-.btn {
-  padding: 0.75rem 2rem;
-  border: 2px solid #000;
-  background: white;
-  color: #000;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
+.action-buttons-grid {
+  display: inline-flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background: white;
+  min-width: 140px;
+  justify-content: center;
 }
 
-.btn:hover {
-  background: #f0f0f0;
-}
-
-.btn-pdf {
-  border-color: #1565c0;
-  color: #1565c0;
-}
-
-.btn-pdf:hover {
-  background: #e3f2fd;
-}
-
-.btn-excel {
-  border-color: #2e7d32;
-  color: #2e7d32;
-}
-
-.btn-excel:hover {
-  background: #e8f5e8;
-}
-
-.btn-print {
-  border-color: #424242;
-  color: #424242;
-}
-
-.btn-print:hover {
-  background: #f5f5f5;
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .btn-deductions {
   border-color: #ff9800;
-  color: #ff9800;
+  color: #e65100;
 }
 
 .btn-deductions:hover {
   background: #fff3e0;
 }
 
-.btn-add {
+.btn-save {
   border-color: #4caf50;
-  color: #4caf50;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  margin-right: 0.5rem;
+  color: #2e7d32;
 }
 
-.btn-add:hover {
-  background: #e8f5e9;
+.btn-save:hover {
+  background: #e8f5e8;
 }
 
-.btn-clear {
-  border-color: #9e9e9e;
-  color: #9e9e9e;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
+.btn-excel {
+  border-color: #2196f3;
+  color: #0d47a1;
 }
 
-.btn-clear:hover {
-  background: #f5f5f5;
+.btn-excel:hover {
+  background: #e3f2fd;
 }
 
-.btn-remove {
-  background: #ff4444;
-  color: white;
-  border: 1px solid #ff4444;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem;
-  margin-left: 0.5rem;
-  cursor: pointer;
+.btn-print {
+  border-color: #9c27b0;
+  color: #6a1b9a;
 }
 
-.btn-remove:hover {
-  background: #cc0000;
+.btn-print:hover {
+  background: #f3e5f5;
 }
 
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-text {
+  font-weight: 600;
+}
+
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
-  padding: 1.5rem;
-  border-bottom: 2px solid #dee2e6;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #f8fafc;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #333;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .modal-close {
@@ -1797,207 +1830,357 @@ onMounted(() => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 30px;
-  height: 30px;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal-close:hover {
-  color: #000;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
-.deduction-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+/* Ultra-Compact Mobile-First Design */
+@media (max-width: 768px) {
+  .payroll-container {
+    padding: 0.25rem !important; /* Ultra-minimal padding */
+    min-height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    display: block !important;
+    height: auto !important;
+  }
+
+  .page-header {
+    margin-bottom: 0.25rem !important;
+  }
+
+  .page-title {
+    font-size: 0.9rem !important;
+    margin: 0 0 0.125rem 0 !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.7rem !important;
+  }
+
+  .filters-bar {
+    margin-bottom: 0.25rem !important;
+  }
+
+  .filters-content {
+    padding: 0.25rem !important;
+  }
+
+  .filter-row {
+    gap: 0.25rem !important;
+  }
+
+  .filter-item {
+    min-width: auto !important;
+  }
+
+  .filter-input,
+  .filter-select {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .payslip-wrapper {
+    margin-bottom: 0.25rem !important;
+  }
+
+  .payslip-card {
+    border-radius: 4px !important;
+  }
+
+  .payslip-content {
+    padding: 0.25rem !important; /* Ultra-compressed padding */
+  }
+
+  .company-header-section {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    gap: 0.25rem !important;
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .company-logo {
+    width: 32px !important; /* Smaller logo */
+    height: 32px !important;
+  }
+
+  .company-name {
+    font-size: 0.9rem !important;
+  }
+
+  .company-details {
+    font-size: 0.55rem !important;
+  }
+
+  .company-details p {
+    margin: 0.1rem 0 !important; /* Tighter line spacing */
+  }
+
+  .payslip-title {
+    font-size: 0.8rem !important;
+  }
+
+  .employee-info-grid {
+    margin-bottom: 0.5rem !important;
+    padding: 0.25rem !important; /* Compressed padding */
+    gap: 0.25rem !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .info-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.0625rem !important; /* Minimal gap */
+    padding: 0.125rem 0 !important; /* Compressed padding */
+  }
+
+  .info-label {
+    font-size: 0.65rem !important;
+  }
+
+  .info-value {
+    font-size: 0.7rem !important;
+    text-align: left !important;
+  }
+
+  .table-scroll-container {
+    max-height: 250px !important; /* Reasonable height for mobile */
+    border-radius: 3px !important;
+  }
+
+  .payslip-table {
+    font-size: 0.45rem !important; /* Smaller font for more data */
+    min-width: 350px !important; /* Reduced min-width for better fit */
+  }
+
+  .header-row th {
+    padding: 0.125rem 0.0625rem !important; /* Ultra-compressed padding */
+    font-size: 0.4rem !important;
+  }
+
+  .data-row td {
+    padding: 0.125rem 0.0625rem !important; /* Ultra-compressed cell padding */
+  }
+
+  .totals-row td,
+  .deduction-row td,
+  .total-deductions-row td,
+  .net-pay-row td {
+    padding: 0.1875rem 0.0625rem !important; /* Slightly more padding for totals */
+  }
+
+  .prepared-by-section {
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem !important;
+  }
+
+  .prepared-by-content {
+    padding: 0.25rem !important; /* Compressed padding */
+    gap: 0.125rem !important; /* Minimal gap */
+    flex-direction: column !important;
+  }
+
+  .prepared-by-label {
+    font-size: 0.7rem !important;
+  }
+
+  .prepared-by-value {
+    min-width: 200px !important; /* Reasonable width for mobile */
+    font-size: 0.65rem !important;
+  }
+
+  .action-buttons-section {
+    margin-top: 0.5rem !important;
+  }
+
+  .action-buttons-grid {
+    gap: 0.125rem !important; /* Minimal gap */
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .action-btn {
+    width: 100% !important;
+    padding: 0.375rem 0.5rem !important; /* Compressed button padding */
+    font-size: 0.65rem !important;
+    min-width: auto !important;
+  }
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Extra Small Devices */
+@media (max-width: 480px) {
+  .payroll-container {
+    padding: 0.125rem !important;
+  }
+
+  .page-title {
+    font-size: 0.9rem !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.7rem !important;
+  }
+
+  .filters-content {
+    padding: 0.4rem !important;
+  }
+
+  .payslip-content {
+    padding: 0.4rem !important;
+  }
+
+  .company-logo {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .company-name {
+    font-size: 0.9rem !important;
+  }
+
+  .company-details {
+    font-size: 0.55rem !important;
+  }
+
+  .payslip-title {
+    font-size: 0.8rem !important;
+  }
+
+  .employee-info-grid {
+    padding: 0.4rem !important;
+  }
+
+  .table-scroll-container {
+    max-height: 120px !important;
+  }
+
+  .payslip-table {
+    font-size: 0.45rem !important;
+    min-width: 350px !important;
+  }
+
+  .prepared-by-value {
+    min-width: 80px !important;
+    font-size: 0.65rem !important;
+  }
+
+  .action-btn {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.65rem !important;
+  }
 }
 
-.form-group label {
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #495057;
-}
+/* Tiny Devices */
+@media (max-width: 360px) {
+  .payroll-container {
+    padding: 0.0625rem !important;
+  }
 
-.deduction-input {
-  padding: 0.5rem;
-  border: 2px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
-}
+  .page-title {
+    font-size: 0.8rem !important;
+  }
 
-.deduction-input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+  .page-subtitle {
+    font-size: 0.65rem !important;
+  }
 
-.deduction-select {
-  padding: 0.5rem;
-  border: 2px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
-  width: 100%;
-}
+  .filters-content {
+    padding: 0.3rem !important;
+  }
 
-.deduction-select:focus {
-  outline: none;
-  border-color: #007bff;
-}
+  .payslip-content {
+    padding: 0.3rem !important;
+  }
 
-.form-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
+  .company-logo {
+    width: 30px !important;
+    height: 30px !important;
+  }
 
-.deductions-list {
-  margin-bottom: 1rem;
-}
+  .company-name {
+    font-size: 0.8rem !important;
+  }
 
-.deductions-list h4 {
-  margin: 0 0 1rem 0;
-  color: #333;
-}
+  .company-details {
+    font-size: 0.5rem !important;
+  }
 
-.deduction-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  background: #f8f9fa;
-}
+  .payslip-title {
+    font-size: 0.75rem !important;
+  }
 
-.deduction-name {
-  font-weight: bold;
-  flex: 1;
-}
+  .employee-info-grid {
+    padding: 0.3rem !important;
+  }
 
-.deduction-value {
-  color: #666;
-  margin-left: 1rem;
-}
+  .table-scroll-container {
+    max-height: 100px !important;
+  }
 
-.deductions-summary {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #e3f2fd;
-  border-radius: 4px;
-  border: 1px solid #bbdefb;
-}
+  .payslip-table {
+    font-size: 0.4rem !important;
+    min-width: 300px !important;
+  }
 
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
+  .prepared-by-value {
+    min-width: 70px !important;
+    font-size: 0.6rem !important;
+  }
 
-.summary-item:last-child {
-  margin-bottom: 0;
-  color: #2e7d32;
-  font-size: 1.1rem;
-}
-
-.total-net-pay {
-  border-top: 2px solid #1976d2;
-  padding-top: 0.5rem;
-  margin-top: 0.5rem;
-  color: #1976d2 !important;
+  .action-btn {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.6rem !important;
+  }
 }
 
 /* Print Styles */
 @media print {
-  .payroll-sheet {
-    max-width: none;
-    margin: 0;
-    padding: 1rem;
+  .payroll-container {
+    background: white !important;
+    padding: 0 !important;
   }
 
-  .payroll-controls {
-    display: none;
+  .page-header,
+  .filters-bar,
+  .action-buttons-section {
+    display: none !important;
   }
 
-  .company-name {
-    font-size: 2rem;
+  .payslip-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    width: 100% !important;
+    max-width: none !important;
   }
 
-  .ledger-table {
-    font-size: 0.75rem;
+  .payslip-content {
+    padding: 1rem !important;
   }
 
-  .header-row th,
-  .data-row td {
-    padding: 0.5rem 0.25rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .payroll-statement {
-    padding: 1rem;
-    font-size: 0.8rem;
+  .table-scroll-container {
+    overflow: visible !important;
+    border: none !important;
   }
 
-  .company-header {
-    flex-direction: column;
-    gap: 1rem;
+  .payslip-table {
+    font-size: 0.7rem !important;
   }
-
-  .invoice-header {
-    text-align: left;
-  }
-
-  .payroll-footer {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .payment-instructions {
-    text-align: left;
-  }
-
-  .payroll-controls {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-  }
-
-  .ledger-table {
-    font-size: 0.75rem;
-  }
-
-  .header-row th,
-  .data-row td {
-    padding: 0.5rem 0.25rem;
-  }
-
-  .date-col { width: 15%; }
-  .invoice-col { width: 18%; }
-  .description-col { width: 25%; }
-  .destination-col { width: auto; display: none; } /* Hide on very small screens */
-  .qty-col { width: 10%; }
-  .rate-col { width: 12%; }
-  .amount-col { width: 15%; }
-  .actions-col { width: 5%; }
 }
 </style>

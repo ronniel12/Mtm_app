@@ -20,6 +20,8 @@ const refreshKey = ref(0)
 const editTrip = ref(null)
 const showHistory = ref(false)
 const mobileMenuOpen = ref(false)
+const billingTab = ref('create')
+const payrollTab = ref('create')
 
 const trips = ref([])
 const employees = ref([])
@@ -108,931 +110,847 @@ fetchDashboardData()
 </script>
 
 <template>
-  <v-app>
-    <!-- Vuetify App Bar -->
+  <v-app class="app-container">
+    <!-- App Bar - Fixed at top -->
     <v-app-bar
       app
       color="primary"
       dark
       elevation="2"
       height="64"
+      fixed
+      class="app-bar"
     >
-      <v-app-bar-nav-icon @click="mobileMenuOpen = !mobileMenuOpen" class="d-md-none" />
-      <v-toolbar-title class="d-flex align-center">
-        <v-img
-          src="/mtmlogo.jpeg"
-          alt="MTM Enterprise Logo"
-          max-height="32"
-          max-width="32"
-          class="me-3"
-        />
-        <span class="text-h6 font-weight-bold">MTM Enterprise</span>
-      </v-toolbar-title>
+      <v-btn
+        icon
+        @click="toggleMobileMenu"
+        class="mobile-menu-icon"
+        style="display: block !important;"
+      >
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
 
-      <!-- Desktop Navigation -->
-      <v-spacer />
+      <!-- Desktop Navigation - Left side -->
       <v-tabs
         v-model="activeSection"
-        class="d-none d-md-flex"
+        class="d-none d-md-flex desktop-tabs"
         bg-color="transparent"
         slider-color="white"
         hide-slider
+        density="compact"
+        grow
       >
-        <v-tab
-          value="dashboard"
-          @click="setActiveSection('dashboard')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-view-dashboard</v-icon>
-          Dashboard
+        <v-tab value="dashboard" @click="setActiveSection('dashboard')" class="nav-tab">
+          <v-icon size="16" start>mdi-view-dashboard</v-icon>
+          <span class="d-none d-md-inline">Dashboard</span>
         </v-tab>
-        <v-tab
-          value="payroll"
-          @click="setActiveSection('payroll')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-cash-multiple</v-icon>
-          Payroll
+        <v-tab value="payroll" @click="setActiveSection('payroll')" class="nav-tab">
+          <v-icon size="16" start>mdi-cash-multiple</v-icon>
+          <span class="d-none d-md-inline">Payroll</span>
         </v-tab>
-        <v-tab
-          value="trips"
-          @click="setActiveSection('trips')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-truck</v-icon>
-          Trips
+        <v-tab value="trips" @click="setActiveSection('trips')" class="nav-tab">
+          <v-icon size="16" start>mdi-truck</v-icon>
+          <span class="d-none d-md-inline">Trips</span>
         </v-tab>
-        <v-tab
-          value="billing"
-          @click="setActiveSection('billing')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-receipt</v-icon>
-          Billing
+        <v-tab value="billing" @click="setActiveSection('billing')" class="nav-tab">
+          <v-icon size="16" start>mdi-receipt</v-icon>
+          <span class="d-none d-md-inline">Billing</span>
         </v-tab>
-        <v-tab
-          value="tolls"
-          @click="setActiveSection('tolls')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-road-variant</v-icon>
-          Tolls
+        <v-tab value="tolls" @click="setActiveSection('tolls')" class="nav-tab">
+          <v-icon size="16" start>mdi-road-variant</v-icon>
+          <span class="d-none d-md-inline">Tolls</span>
         </v-tab>
-        <v-tab
-          value="fuel"
-          @click="setActiveSection('fuel')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-gas-station</v-icon>
-          Fuel
+        <v-tab value="fuel" @click="setActiveSection('fuel')" class="nav-tab">
+          <v-icon size="16" start>mdi-gas-station</v-icon>
+          <span class="d-none d-md-inline">Fuel</span>
         </v-tab>
-        <v-tab
-          value="expenses"
-          @click="setActiveSection('expenses')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-cash-minus</v-icon>
-          Expenses
+        <v-tab value="expenses" @click="setActiveSection('expenses')" class="nav-tab">
+          <v-icon size="16" start>mdi-cash-minus</v-icon>
+          <span class="d-none d-md-inline">Expenses</span>
         </v-tab>
-        <v-tab
-          value="maintenance"
-          @click="setActiveSection('maintenance')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-wrench</v-icon>
-          Maintenance
+        <v-tab value="maintenance" @click="setActiveSection('maintenance')" class="nav-tab">
+          <v-icon size="16" start>mdi-wrench</v-icon>
+          <span class="d-none d-md-inline">Maintenance</span>
         </v-tab>
-        <v-tab
-          value="settings"
-          @click="setActiveSection('settings')"
-          class="nav-tab"
-        >
-          <v-icon start size="18">mdi-cog</v-icon>
-          Settings
+        <v-tab value="settings" @click="setActiveSection('settings')" class="nav-tab">
+          <v-icon size="16" start>mdi-cog</v-icon>
+          <span class="d-none d-md-inline">Settings</span>
         </v-tab>
       </v-tabs>
+
+      <!-- Logo and Text - Rightmost position -->
+      <v-toolbar-title class="d-flex align-center toolbar-title">
+        <img
+          src="/mtmlogo.jpeg"
+          alt="MTM Enterprise Logo"
+          style="height: 36px; width: 36px; margin-right: 12px; display: block !important; visibility: visible !important;"
+        />
+        <span style="display: inline !important; visibility: visible !important; font-size: 1.25rem; font-weight: 600; color: white; letter-spacing: 0.5px;">MTM Enterprise</span>
+      </v-toolbar-title>
     </v-app-bar>
 
-    <!-- Vuetify Navigation Drawer -->
+    <!-- Mobile Navigation Drawer -->
     <v-navigation-drawer
       v-model="mobileMenuOpen"
       temporary
       location="left"
       width="280"
+      class="mobile-drawer"
     >
-      <v-list nav>
-        <v-list-item>
-          <v-list-item-title class="text-h6 font-weight-bold">
-            MTM Enterprise
-          </v-list-item-title>
-        </v-list-item>
-
-        <v-divider class="my-2" />
-
+      <div class="drawer-header pa-4">
+        <div class="d-flex align-center">
+          <v-img
+            src="/mtmlogo.jpeg"
+            alt="MTM Enterprise Logo"
+            max-height="32"
+            max-width="32"
+            class="me-3"
+          />
+          <span class="text-h6 font-weight-bold">MTM Enterprise</span>
+        </div>
+      </div>
+      <v-divider />
+      <v-list nav class="drawer-list">
         <v-list-item
           :active="activeSection === 'dashboard'"
           @click="setActiveSectionMobile('dashboard')"
           value="dashboard"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-view-dashboard</v-icon></template>
           <v-list-item-title>Dashboard</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'payroll'"
           @click="setActiveSectionMobile('payroll')"
           value="payroll"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-cash-multiple</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-cash-multiple</v-icon></template>
           <v-list-item-title>Payroll</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'trips'"
           @click="setActiveSectionMobile('trips')"
           value="trips"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-truck</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-truck</v-icon></template>
           <v-list-item-title>Trips</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'billing'"
           @click="setActiveSectionMobile('billing')"
           value="billing"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-receipt</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-receipt</v-icon></template>
           <v-list-item-title>Billing</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'tolls'"
           @click="setActiveSectionMobile('tolls')"
           value="tolls"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-road-variant</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-road-variant</v-icon></template>
           <v-list-item-title>Tolls</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'fuel'"
           @click="setActiveSectionMobile('fuel')"
           value="fuel"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-gas-station</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-gas-station</v-icon></template>
           <v-list-item-title>Fuel</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'expenses'"
           @click="setActiveSectionMobile('expenses')"
           value="expenses"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-cash-minus</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-cash-minus</v-icon></template>
           <v-list-item-title>Expenses</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'maintenance'"
           @click="setActiveSectionMobile('maintenance')"
           value="maintenance"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-wrench</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-wrench</v-icon></template>
           <v-list-item-title>Maintenance</v-list-item-title>
         </v-list-item>
-
         <v-list-item
           :active="activeSection === 'settings'"
           @click="setActiveSectionMobile('settings')"
           value="settings"
+          class="drawer-item"
         >
-          <template #prepend>
-            <v-icon>mdi-cog</v-icon>
-          </template>
+          <template #prepend><v-icon>mdi-cog</v-icon></template>
           <v-list-item-title>Settings</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
-    <!-- Main Content -->
-    <v-main class="bg-grey-lighten-4">
-      <v-container fluid class="pa-4 pa-md-6">
-      <!-- Dashboard Section -->
-      <div v-if="activeSection === 'dashboard'" class="section dashboard">
-        <div class="section-header">
-          <h2>📊 Dashboard</h2>
-          <p>Overview of your logistics operations</p>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="isLoading" class="loading-container">
-          <div class="loading-spinner"></div>
-          <p>Loading dashboard data...</p>
-        </div>
-
-        <!-- Error State -->
-        <div v-else-if="error" class="error-container">
-          <div class="error-icon">⚠️</div>
-          <h3>Failed to Load Data</h3>
-          <p>{{ error }}</p>
-          <button @click="fetchDashboardData" class="btn-primary">Retry</button>
-        </div>
-
-        <!-- Dashboard Content -->
-        <div v-else>
-          <DashboardCharts :trips="trips" :employees="employees" />
-        </div>
-      </div>
-
-      <!-- Trips Section -->
-      <div v-if="activeSection === 'trips'" class="section trips">
-        <div class="section-header">
-          <h2>🚛 Trip Management</h2>
-          <div v-if="!showForm && !editTrip">
-            <button @click="toggleForm" class="btn-primary">
-              + New Trip
-            </button>
+    <!-- Main Content Area -->
+    <v-main class="main-content bg-grey-lighten-4">
+      <div class="content-wrapper">
+        <!-- Dashboard Section -->
+        <div v-if="activeSection === 'dashboard'" class="content-section">
+          <div class="section-header mb-3 mb-md-4">
+            <h1 class="text-h5 text-md-h4 mb-2">📊 Dashboard</h1>
+            <p class="text-body-2 text-md-body-1 text-grey">Overview of your logistics operations</p>
+          </div>
+          <div v-if="isLoading" class="loading-state text-center py-6 py-md-8">
+            <v-progress-circular indeterminate color="primary" size="40" />
+            <p class="mt-4 text-body-1">Loading dashboard data...</p>
+          </div>
+          <v-alert v-else-if="error" type="error" class="mb-4 error-alert">
+            <template #prepend><v-icon>mdi-alert-circle</v-icon></template>
+            <h3 class="text-h6 mb-2">Failed to Load Data</h3>
+            <p>{{ error }}</p>
+            <v-btn @click="fetchDashboardData" color="primary" variant="outlined" class="mt-2" size="small">Retry</v-btn>
+          </v-alert>
+          <div v-else class="dashboard-content">
+            <DashboardCharts :trips="trips" :employees="employees" />
           </div>
         </div>
-        <div v-if="showForm && !editTrip" class="form-container">
-          <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="toggleForm" />
-        </div>
-        <div class="trips-content">
+
+        <!-- Trips Section -->
+        <div v-if="activeSection === 'trips'" class="content-section">
+          <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center mb-3 mb-md-4 gap-2">
+            <div class="flex-grow-1">
+              <h1 class="text-h5 text-md-h4 mb-2">🚛 Trip Management</h1>
+            </div>
+            <v-btn
+              v-if="!showForm && !editTrip"
+              @click="toggleForm"
+              color="primary"
+              prepend-icon="mdi-plus"
+              size="small"
+              class="action-btn"
+            >
+              <span class="d-none d-sm-inline">New Trip</span>
+              <span class="d-sm-none">New</span>
+            </v-btn>
+          </div>
+          <div v-if="showForm && !editTrip" class="mb-4 mb-md-6">
+            <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="toggleForm" />
+          </div>
           <TripList :key="refreshKey" @tripEdit="onTripEdit" />
         </div>
-      </div>
 
-      <!-- Trip Edit Modal -->
-      <div v-if="editTrip" class="modal-overlay">
-        <div class="modal-content">
-          <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="toggleForm" />
+        <!-- Settings Section -->
+        <div v-if="activeSection === 'settings'" class="content-section">
+          <div class="section-header mb-3 mb-md-4">
+            <h1 class="text-h5 text-md-h4 mb-2">⚙️ Settings</h1>
+            <p class="text-body-2 text-md-body-1 text-grey">Manage drivers, helpers, and rates</p>
+          </div>
+          <Settings />
+        </div>
+
+        <!-- Billing Section -->
+        <div v-if="activeSection === 'billing'" class="content-section">
+          <v-tabs v-model="billingTab" class="mb-3 mb-md-4 billing-tabs">
+            <v-tab value="create" class="tab-item">
+              <v-icon start size="16">mdi-plus</v-icon>
+              <span class="d-none d-sm-inline">Create Billing</span>
+              <span class="d-sm-none">Create</span>
+            </v-tab>
+            <v-tab value="history" class="tab-item">
+              <v-icon start size="16">mdi-history</v-icon>
+              <span class="d-none d-sm-inline">Billing History</span>
+              <span class="d-sm-none">History</span>
+            </v-tab>
+          </v-tabs>
+          <v-window v-model="billingTab" class="billing-window">
+            <v-window-item value="create"><BillingView /></v-window-item>
+            <v-window-item value="history"><BillingHistory @switch-to-create="billingTab = 'create'" /></v-window-item>
+          </v-window>
+        </div>
+
+        <!-- Tolls Section -->
+        <div v-if="activeSection === 'tolls'" class="content-section">
+          <TollView />
+        </div>
+
+        <!-- Fuel Section -->
+        <div v-if="activeSection === 'fuel'" class="content-section">
+          <v-card class="pa-3 pa-md-6 text-center fuel-card" elevation="2">
+            <v-icon size="60" size-md="80" color="grey-lighten-1" class="mb-3 mb-md-4">mdi-gas-station</v-icon>
+            <h2 class="text-h6 text-md-h5 mb-2">Fuel Management</h2>
+            <p class="text-body-2 text-md-body-1 text-grey mb-3 mb-md-4">Track fuel consumption and costs</p>
+            <v-alert type="info" variant="tonal" class="fuel-alert">
+              <template #prepend><v-icon>mdi-information</v-icon></template>
+              Fuel Tracker Coming Soon - This section will track fuel purchases, consumption, and efficiency metrics.
+            </v-alert>
+          </v-card>
+        </div>
+
+        <!-- Expenses Section -->
+        <div v-if="activeSection === 'expenses'" class="content-section">
+          <ExpensesView />
+        </div>
+
+        <!-- Maintenance Section -->
+        <div v-if="activeSection === 'maintenance'" class="content-section">
+          <v-card class="pa-3 pa-md-6 text-center maintenance-card" elevation="2">
+            <v-icon size="60" size-md="80" color="grey-lighten-1" class="mb-3 mb-md-4">mdi-wrench</v-icon>
+            <h2 class="text-h6 text-md-h5 mb-2">Maintenance</h2>
+            <p class="text-body-2 text-md-body-1 text-grey mb-3 mb-md-4">Vehicle maintenance tracking</p>
+            <v-alert type="info" variant="tonal" class="maintenance-alert">
+              <template #prepend><v-icon>mdi-information</v-icon></template>
+              Maintenance Tracker Coming Soon - This section will track vehicle maintenance schedules and repair history.
+            </v-alert>
+          </v-card>
+        </div>
+
+        <!-- Payroll Section -->
+        <div v-if="activeSection === 'payroll'" class="content-section">
+          <v-tabs v-model="payrollTab" class="mb-3 mb-md-4 payroll-tabs">
+            <v-tab value="create" class="tab-item">
+              <v-icon start size="16">mdi-plus</v-icon>
+              <span class="d-none d-sm-inline">Create Payslip</span>
+              <span class="d-sm-none">Create</span>
+            </v-tab>
+            <v-tab value="history" class="tab-item">
+              <v-icon start size="16">mdi-history</v-icon>
+              <span class="d-none d-sm-inline">Payslip History</span>
+              <span class="d-sm-none">History</span>
+            </v-tab>
+          </v-tabs>
+          <v-window v-model="payrollTab" class="payroll-window">
+            <v-window-item value="create"><PayrollView /></v-window-item>
+            <v-window-item value="history"><PayslipHistory @switch-to-create="payrollTab = 'create'" /></v-window-item>
+          </v-window>
         </div>
       </div>
-
-      <!-- Settings Section -->
-      <div v-if="activeSection === 'settings'" class="section settings">
-        <div class="section-header">
-          <h2>⚙️ Settings</h2>
-          <p>Manage drivers, helpers, and rates</p>
-        </div>
-        <Settings />
-      </div>
-
-      <!-- Billing Section -->
-      <div v-if="activeSection === 'billing'" class="section billing">
-        <div class="billing-nav">
-          <button
-            :class="{ active: !showHistory }"
-            @click="showHistory = false"
-            class="billing-nav-btn"
-          >
-            📝 Create Billing
-          </button>
-          <button
-            :class="{ active: showHistory }"
-            @click="showHistory = true"
-            class="billing-nav-btn"
-          >
-            📋 Billing History
-          </button>
-        </div>
-
-        <div v-if="!showHistory">
-          <BillingView />
-        </div>
-
-        <div v-if="showHistory">
-          <BillingHistory @switch-to-create="showHistory = false" />
-        </div>
-      </div>
-
-      <!-- Tolls Section -->
-      <div v-if="activeSection === 'tolls'" class="section tolls">
-        <TollView />
-      </div>
-
-      <!-- Fuel Section -->
-      <div v-if="activeSection === 'fuel'" class="section fuel">
-        <div class="section-header">
-          <h2>⛽ Fuel Management</h2>
-          <p>Track fuel consumption and costs</p>
-        </div>
-        <div class="coming-soon">
-          <div class="coming-soon-icon">⛽</div>
-          <h3>Fuel Tracker Coming Soon</h3>
-          <p>This section will track fuel purchases, consumption, and efficiency metrics.</p>
-        </div>
-      </div>
-
-      <!-- Expenses Section -->
-      <div v-if="activeSection === 'expenses'" class="section expenses">
-        <ExpensesView />
-      </div>
-
-      <!-- Maintenance Section -->
-      <div v-if="activeSection === 'maintenance'" class="section maintenance">
-        <div class="section-header">
-          <h2>🔧 Maintenance</h2>
-          <p>Vehicle maintenance tracking</p>
-        </div>
-        <div class="coming-soon">
-          <div class="coming-soon-icon">🏗️</div>
-          <h3>Maintenance Tracker Coming Soon</h3>
-          <p>This section will track vehicle maintenance schedules and repair history.</p>
-        </div>
-      </div>
-
-      <!-- Payroll Section -->
-      <div v-if="activeSection === 'payroll'" class="section payroll">
-        <div class="billing-nav">
-          <button
-            :class="{ active: !showHistory }"
-            @click="showHistory = false"
-            class="billing-nav-btn"
-          >
-            📝 Create Payslip
-          </button>
-          <button
-            :class="{ active: showHistory }"
-            @click="showHistory = true"
-            class="billing-nav-btn"
-          >
-            📑 Payslip History
-          </button>
-        </div>
-
-        <div v-if="!showHistory">
-          <PayrollView />
-        </div>
-
-        <div v-if="showHistory">
-          <PayslipHistory @switch-to-create="showHistory = false" />
-        </div>
-      </div>
-      </v-container>
     </v-main>
+
+    <!-- Edit Trip Dialog -->
+    <v-dialog v-model="editTrip" max-width="90vw" width="800" persistent class="edit-dialog">
+      <v-card>
+        <v-card-title class="d-flex align-center pa-3 pa-md-6">
+          <v-icon start>mdi-pencil</v-icon>
+          <span class="text-h6 text-md-h5">Edit Trip</span>
+        </v-card-title>
+        <v-card-text class="pa-3 pa-md-6">
+          <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="() => editTrip = null" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
-<style scoped>
-.app {
+<style>
+/* ==========================================================================
+   MOBILE-FIRST RESPONSIVE APP DESIGN
+   ========================================================================== */
+
+/* Global Reset & Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* App Container */
+.app-container {
+  width: 100vw;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: #f8fafc;
 }
 
-.top-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: #1e40af;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* ==========================================================================
+   APP BAR STYLES
+   ========================================================================== */
+
+.app-bar {
+  width: 100vw !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #1976d2 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
 }
 
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  z-index: 1001;
+.toolbar-title {
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 24px;
 }
 
 .logo-image {
-  height: 24px;
-  width: auto;
-  object-fit: contain;
+  flex-shrink: 0;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.logo h1 {
-  margin: 0;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
+.app-title,
+.app-title-mobile {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.top-nav {
-  display: flex;
-  gap: 0.25rem;
-  align-items: center;
+/* Force hamburger menu visibility */
+.mobile-menu-icon {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.nav-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  min-width: 60px;
-  text-align: center;
-  backdrop-filter: blur(10px);
+.app-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
 }
 
-.nav-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+.app-title-mobile {
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
 }
 
-.nav-btn.active {
-  background: white;
-  color: #1e40af;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.mobile-menu-icon {
+  margin-right: 8px;
 }
 
-/* Mobile Menu Button */
-.mobile-menu-btn {
-  display: none;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+/* Desktop Navigation - Unified Flow */
+.desktop-tabs {
+  margin-left: 16px;
+  margin-right: 16px;
 }
 
-.mobile-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+.nav-tab {
+  min-width: auto !important;
+  padding: 0 12px !important;
+  font-size: 0.8rem !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px !important;
 }
 
-.mobile-menu-btn svg {
-  width: 20px;
-  height: 20px;
+/* ==========================================================================
+   MOBILE DRAWER
+   ========================================================================== */
+
+.mobile-drawer {
+  width: 280px !important;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1) !important;
 }
 
-/* Mobile Menu Overlay */
-.mobile-menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.mobile-menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.mobile-menu {
-  position: fixed;
-  top: 0;
-  right: -300px;
-  width: 280px;
-  height: 100vh;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  transition: right 0.3s ease;
-  padding: 2rem 1.5rem;
-}
-
-.mobile-menu.active {
-  right: 0;
-}
-
-.mobile-menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
+.drawer-header {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.mobile-menu-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
+.drawer-list {
+  padding: 8px 0;
 }
 
-.mobile-menu-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: background 0.2s;
+.drawer-item {
+  margin: 2px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.mobile-menu-close:hover {
+.drawer-item:hover {
   background: #f3f4f6;
 }
 
-.mobile-nav-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.drawer-item--active {
+  background: #1976d2 !important;
+  color: white !important;
 }
 
-.mobile-nav-btn {
-  width: 100%;
+/* ==========================================================================
+   MAIN CONTENT AREA
+   ========================================================================== */
+
+.main-content {
+  width: 100vw;
+  min-height: calc(100vh - 64px);
+  padding-top: 80px !important; /* Account for fixed app bar + spacing */
   background: #f8fafc;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
-.mobile-nav-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  transform: translateX(4px);
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
 }
 
-.mobile-nav-btn.active {
-  background: #1e40af;
-  color: white;
-  border-color: #1e40af;
+/* Content Sections */
+.content-section {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 16px;
+}
+
+.section-header h1 {
+  margin: 0 0 4px 0;
+  color: #1e293b;
   font-weight: 600;
 }
 
-.btn-primary {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.section-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
-.btn-primary:hover {
-  background: #45a049;
+/* ==========================================================================
+   COMPONENT SPECIFIC STYLES
+   ========================================================================== */
+
+/* Loading States */
+.loading-state {
+  padding: 32px 16px;
 }
 
-.main-content {
-  max-width: 1200px;
+/* Error States */
+.error-alert {
+  margin-bottom: 16px;
+}
+
+/* Tabs */
+.billing-tabs,
+.payroll-tabs {
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.tab-item {
+  font-size: 0.85rem !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px !important;
+  min-width: auto !important;
+}
+
+/* Windows */
+.billing-window,
+.payroll-window {
+  width: 100%;
+}
+
+/* Cards */
+.fuel-card,
+.maintenance-card {
+  width: 100%;
   margin: 0 auto;
-  padding: 65px 2rem 2rem 2rem;
-  min-height: calc(100vh - 45px);
-  display: flex;
-  flex-direction: column;
+  max-width: 600px;
 }
 
-.section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 70vh;
-  width: 100%;
+.fuel-alert,
+.maintenance-alert {
+  margin-top: 16px;
 }
 
-.form-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================================== */
 
-.dashboard {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 2rem;
-}
-
-.btn-secondary {
-  background: #17a2b8;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background: #138496;
-}
-
-.btn-settings {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.btn-settings:hover {
-  background: #5a6268;
-}
-
-.nav-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.rates-container, .settings-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  padding: 2rem;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  position: relative;
-  width: 600px;
-}
-
-/* Billing Navigation */
-.billing-nav {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.billing-nav-btn {
-  background: #f8fafc;
-  color: #374151;
-  border: 2px solid #e5e7eb;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex: 1;
-  font-weight: 500;
-}
-
-.billing-nav-btn:hover {
-  background: #e5e7eb;
-  border-color: #d1d5db;
-}
-
-.billing-nav-btn.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-}
-
-/* Coming Soon Sections */
-.coming-soon {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 3rem 2rem;
-  text-align: center;
-  margin-top: 2rem;
-  width: 100%;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.coming-soon-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.7;
-}
-
-.coming-soon h3 {
-  color: #333;
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-}
-
-.coming-soon p {
-  color: #666;
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-/* Loading and Error States */
-.loading-container {
-  text-align: center;
-  padding: 3rem 2rem;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-container p {
-  color: #666;
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.error-container {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  margin-top: 2rem;
-}
-
-.error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.error-container h3 {
-  color: #dc2626;
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-}
-
-.error-container p {
-  color: #991b1b;
-  margin: 0 0 1.5rem 0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-/* Responsive Design - Mobile First */
-@media (max-width: 768px) {
-  .header-content {
-    padding: 0.5rem;
+/* Extra small devices (phones, < 576px) */
+@media (max-width: 575.98px) {
+  .content-wrapper {
+    padding: 8px;
   }
 
-  .logo h1 {
+  .section-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .section-header p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Small devices (phones, 576px and up) */
+@media (min-width: 576px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+
+  .section-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .section-header p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .content-wrapper {
+    padding: 24px;
+  }
+
+  .section-header {
+    margin-bottom: 20px;
+  }
+
+  .section-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .section-header p {
     font-size: 1rem;
   }
 
-  .logo-image {
-    height: 20px;
+  .fuel-card,
+  .maintenance-card {
+    max-width: 700px;
   }
 
-  /* Hide desktop navigation on mobile */
-  .top-nav {
-    display: none;
-  }
-
-  /* Show mobile menu button on mobile */
-  .mobile-menu-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Adjust main content padding for mobile */
-  .main-content {
-    padding: 60px 1rem 2rem 1rem;
-  }
-
-  /* Make billing navigation stack on mobile */
-  .billing-nav {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .billing-nav-btn {
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
-
-  /* Adjust section padding for mobile */
-  .section {
-    padding: 1rem;
-  }
-
-  .dashboard, .form-container {
-    padding: 1rem;
-  }
-
-  /* Make modal content full width on mobile */
-  .modal-content {
-    width: 95%;
-    max-width: none;
-    padding: 1rem;
+  .nav-tab span {
+    display: inline !important;
   }
 }
 
-@media (max-width: 480px) {
-  .header-content {
-    padding: 0.25rem;
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .content-wrapper {
+    padding: 32px;
   }
 
-  .logo {
-    gap: 0.5rem;
+  .section-header h1 {
+    font-size: 2rem;
   }
 
-  .logo h1 {
-    font-size: 0.9rem;
+  .fuel-card,
+  .maintenance-card {
+    max-width: 800px;
   }
+}
 
-  .mobile-menu {
-    width: 100%;
-    padding: 1.5rem 1rem;
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .content-wrapper {
+    max-width: 1400px;
   }
+}
 
-  .mobile-nav-btn {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+/* 2XL devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+  .content-wrapper {
+    max-width: 1600px;
+    padding: 40px;
   }
+}
 
-  .main-content {
-    padding: 55px 0.5rem 2rem 0.5rem;
-  }
+/* ==========================================================================
+   DIALOG/MODAL STYLES
+   ========================================================================== */
 
-  .section {
-    padding: 0.5rem;
-  }
+.edit-dialog .v-overlay__content {
+  width: 95vw;
+  max-width: 800px;
+  margin: 16px;
+}
 
-  .dashboard, .form-container {
-    padding: 0.75rem;
+@media (min-width: 640px) {
+  .edit-dialog .v-overlay__content {
+    width: 90vw;
+    margin: 24px;
   }
+}
 
-  .modal-content {
-    width: 98%;
-    padding: 0.75rem;
+@media (min-width: 768px) {
+  .edit-dialog .v-overlay__content {
+    width: auto;
+    margin: 32px;
   }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+.action-btn {
+  white-space: nowrap;
+}
+
+/* Responsive utilities */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-flex { display: flex !important; }
+
+.d-sm-none { display: none !important; }
+.d-sm-block { display: block !important; }
+.d-sm-flex { display: flex !important; }
+
+.d-md-none { display: none !important; }
+.d-md-block { display: block !important; }
+.d-md-flex { display: flex !important; }
+
+.d-lg-none { display: none !important; }
+.d-lg-block { display: block !important; }
+.d-lg-flex { display: flex !important; }
+
+.d-xl-none { display: none !important; }
+.d-xl-block { display: block !important; }
+.d-xl-flex { display: flex !important; }
+
+@media (min-width: 576px) {
+  .d-sm-none { display: none !important; }
+  .d-sm-block { display: block !important; }
+  .d-sm-flex { display: flex !important; }
+}
+
+@media (min-width: 768px) {
+  .d-md-none { display: none !important; }
+  .d-md-block { display: block !important; }
+  .d-md-flex { display: flex !important; }
+}
+
+@media (min-width: 992px) {
+  .d-lg-none { display: none !important; }
+  .d-lg-block { display: block !important; }
+  .d-lg-flex { display: flex !important; }
+}
+
+@media (min-width: 1200px) {
+  .d-xl-none { display: none !important; }
+  .d-xl-block { display: block !important; }
+  .d-xl-flex { display: flex !important; }
+}
+
+/* Flex utilities */
+.flex-column { flex-direction: column !important; }
+.flex-row { flex-direction: row !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.flex-nowrap { flex-wrap: nowrap !important; }
+
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-around { justify-content: space-around !important; }
+.justify-end { justify-content: flex-end !important; }
+
+.align-center { align-items: center !important; }
+.align-start { align-items: flex-start !important; }
+.align-end { align-items: flex-end !important; }
+
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+/* Spacing utilities */
+.gap-1 { gap: 0.25rem !important; }
+.gap-2 { gap: 0.5rem !important; }
+.gap-3 { gap: 1rem !important; }
+.gap-4 { gap: 1.5rem !important; }
+
+.m-0 { margin: 0 !important; }
+.mt-1 { margin-top: 0.25rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+
+.p-1 { padding: 0.25rem !important; }
+.p-2 { padding: 0.5rem !important; }
+.p-3 { padding: 1rem !important; }
+.p-4 { padding: 1.5rem !important; }
+
+/* Width utilities */
+.w-full { width: 100% !important; }
+.w-auto { width: auto !important; }
+
+/* Height utilities */
+.h-full { height: 100% !important; }
+.h-auto { height: auto !important; }
+
+/* Position utilities */
+.relative { position: relative !important; }
+.absolute { position: absolute !important; }
+.fixed { position: fixed !important; }
+
+/* Overflow utilities */
+.overflow-hidden { overflow: hidden !important; }
+.overflow-auto { overflow: auto !important; }
+.overflow-scroll { overflow: scroll !important; }
+
+/* ==========================================================================
+   OVERRIDE VUETIFY DEFAULTS FOR MOBILE
+   ========================================================================== */
+
+/* Ensure no horizontal overflow */
+.v-app {
+  overflow-x: hidden !important;
+}
+
+.v-main {
+  overflow-x: hidden !important;
+}
+
+/* Fix app bar positioning */
+.v-app-bar {
+  width: 100vw !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Ensure navigation drawer doesn't cause overflow */
+.v-navigation-drawer {
+  position: fixed !important;
+  z-index: 1100 !important;
+}
+
+/* Fix any Vuetify component that might cause overflow */
+.v-card,
+.v-sheet,
+.v-window,
+.v-tabs {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure tables don't overflow */
+table {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* Prevent any component from causing horizontal scroll */
+* {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Force viewport containment */
+html {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100vw;
+  overflow-x: hidden;
 }
 </style>
