@@ -224,14 +224,9 @@ app.get('/api/trips/calculated', async (req, res) => {
         [limit, offset]
       );
 
-      // Get cached count (much faster than recounting every time)
-      const countCacheKey = 'trips:count';
-      let total = cache.get(countCacheKey);
-      if (!total) {
-        const countResult = await query('SELECT COUNT(*) as total FROM trips');
-        total = parseInt(countResult.rows[0].total);
-        cache.set(countCacheKey, total, 300); // Cache count for 5 minutes
-      }
+      // Get fresh count (no caching in serverless environments)
+      const countResult = await query('SELECT COUNT(*) as total FROM trips');
+      const total = parseInt(countResult.rows[0].total);
 
       const trips = tripsResult.rows;
 
