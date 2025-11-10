@@ -651,6 +651,10 @@ app.delete('/api/trips/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Trip not found' });
     }
+
+    // Clear relevant caches when trip is deleted
+    cache.del('trips:count');
+
     res.json({ message: 'Trip deleted successfully' });
   } catch (error) {
     console.error('Error deleting trip:', error);
