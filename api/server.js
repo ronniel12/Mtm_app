@@ -1178,15 +1178,14 @@ app.get('/api/payslips/:id', async (req, res) => {
   }
 });
 
-app.post('/api/payslips', async (req, res) => {
+app.post('/api/payslips', jsonParser, async (req, res) => {
   try {
-    // Parse JSON body manually to avoid middleware conflicts
-    let body;
-    try {
-      body = JSON.parse(req.body);
-    } catch (parseError) {
-      // If req.body is already parsed, use it directly
-      body = req.body;
+    // Body is already parsed by jsonParser middleware
+    const body = req.body;
+
+    // Validate required fields
+    if (!body) {
+      return res.status(400).json({ error: 'Request body is required' });
     }
 
     const result = await query(`
@@ -1203,7 +1202,7 @@ app.post('/api/payslips', async (req, res) => {
       parseFloat(body.totals?.totalDeductions || body.deductions || 0),
       parseFloat(body.totals?.netPay || body.net_pay || 0),
       body.status || 'pending',
-      body.createdDate || localTimeString,
+      body.createdDate || new Date().toISOString(),
       JSON.stringify(body)
     ]);
 
