@@ -188,8 +188,7 @@
 <script setup>
 import { ref, reactive, watch, onMounted, computed } from 'vue'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL_FALLBACK
+import { API_BASE_URL, API_ENDPOINTS } from '@/api/config'
 
 const props = defineProps({
   editTrip: {

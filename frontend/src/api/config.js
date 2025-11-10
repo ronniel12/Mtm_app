@@ -1,0 +1,42 @@
+// API Configuration
+// Centralized API base URL configuration for easy maintenance and scaling
+
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+
+// API endpoints
+export const API_ENDPOINTS = {
+  // Trips
+  TRIPS: `${API_BASE_URL}/trips`,
+  TRIPS_CALCULATED: `${API_BASE_URL}/trips/calculated`,
+  TRIPS_SUGGESTIONS: `${API_BASE_URL}/trips/suggestions`,
+
+  // Employees
+  EMPLOYEES: `${API_BASE_URL}/employees`,
+
+  // Rates
+  RATES: `${API_BASE_URL}/rates`,
+  RATES_SEARCH: `${API_BASE_URL}/rates/search`,
+
+  // Vehicles
+  VEHICLES: `${API_BASE_URL}/vehicles`,
+
+  // Billings
+  BILLINGS: `${API_BASE_URL}/billings`,
+
+  // Payslips
+  PAYSLIPS: `${API_BASE_URL}/payslips`,
+
+  // Deductions
+  DEDUCTIONS: `${API_BASE_URL}/deductions`,
+
+  // Expenses
+  EXPENSES: `${API_BASE_URL}/expenses`,
+
+  // Tolls
+  TOLLS_CALCULATE: `${API_BASE_URL}/tolls/calculate`
+}
+
+// Helper function to create axios instance with base URL
+export const createApiUrl = (endpoint) => {
+  return `${API_BASE_URL}${endpoint}`
+}

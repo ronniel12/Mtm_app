@@ -201,8 +201,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import PayslipPreview from './PayslipPreview.vue'
 import EditPayslipForm from './EditPayslipForm.vue'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+import { API_BASE_URL, API_ENDPOINTS } from '@/api/config'
 
 // Data
 const allPayslips = ref([])

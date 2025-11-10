@@ -133,8 +133,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+import { API_BASE_URL, API_ENDPOINTS } from '@/api/config'
 
 // Data
 const trips = ref([])

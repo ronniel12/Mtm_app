@@ -12,8 +12,7 @@ import PayslipHistory from './components/PayslipHistory.vue'
 import TollView from './components/TollView.vue'
 import ExpensesView from './components/ExpensesView.vue'
 import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL_FALLBACK
+import { API_BASE_URL } from '@/api/config'
 
 const showForm = ref(false)
 const activeSection = ref('dashboard')
