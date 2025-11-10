@@ -1,0 +1,118 @@
+[
+  {
+    "id": "1761981452988",
+    "billingNumber": "MTM-2025-001",
+    "period": {
+      "startDate": "2025-10-16",
+      "endDate": "2025-10-31",
+      "periodText": "10/16/2025 to 10/31/2025"
+    },
+    "client": {
+      "name": "Premium Feeds Corp.",
+      "address": "798 Maharlika Highway, Dampol 2nd A",
+      "city": "Pulilan Bulacan",
+      "zipCode": "3005",
+      "tin": "007-932-128-000"
+    },
+    "trips": [
+      {
+        "id": 373,
+        "date": "2025-10-16",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286266",
+        "destination": "HJWR Poultry Farm Brgy. Guisguis, Sta. Cruz, Zambales",
+        "numberOfBags": 250,
+        "rate": 74,
+        "total": 18500
+      },
+      {
+        "id": 374,
+        "date": "2025-10-20",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286351",
+        "destination": "Basixtrading Corp. B, Brgy. Lloren, Tubao, La Union",
+        "numberOfBags": 250,
+        "rate": 66,
+        "total": 16500
+      },
+      {
+        "id": 375,
+        "date": "2025-10-25",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286675",
+        "destination": "Mayantoc Agro-Industrial Corporation D, Brgy. Mamomit, Mayantoc, Tarlac",
+        "numberOfBags": 350,
+        "rate": 42,
+        "total": 14700
+      },
+      {
+        "id": 376,
+        "date": "2025-10-26",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286710",
+        "destination": "IPSP2 2 C2 Sitio Mawaq, Castillejos, Zambales",
+        "numberOfBags": 250,
+        "rate": 44.5,
+        "total": 11125
+      },
+      {
+        "id": 377,
+        "date": "2025-10-28",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286808",
+        "destination": "IPSP2 1 C2 Sitio Mawaq, Castillejos, Zambales",
+        "numberOfBags": 250,
+        "rate": 44.5,
+        "total": 11125
+      },
+      {
+        "id": 378,
+        "date": "2025-10-29",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286853",
+        "destination": "Cita`s Farm & Livestock Corporation B, Brgy. Sapang, Mangatarem, Pangasinan",
+        "numberOfBags": 250,
+        "rate": 46.5,
+        "total": 11625
+      },
+      {
+        "id": 379,
+        "date": "2025-10-29",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286858",
+        "destination": "Casem Roberto C, Brgy. Tallaoen, Luna, La Union",
+        "numberOfBags": 250,
+        "rate": 67,
+        "total": 16750
+      },
+      {
+        "id": 381,
+        "date": "2025-10-30",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286987",
+        "destination": "Mayantoc Agro-Industrial Corporation C, Brgy. Mamomit, Mayantoc, Tarlac",
+        "numberOfBags": 125,
+        "rate": 42,
+        "total": 5250
+      },
+      {
+        "id": 381,
+        "date": "2025-10-30",
+        "truckPlate": "NGU 9174",
+        "invoiceNumber": "FDO#286987",
+        "destination": "Mayantoc Agro-Industrial Corporation C, Brgy. Mamomit, Mayantoc, Tarlac",
+        "numberOfBags": 125,
+        "rate": 42,
+        "total": 5250
+      }
+    ],
+    "totals": {
+      "totalBags": 2100,
+      "totalRevenue": 110825
+    },
+    "preparedBy": "Eric Cruz",
+    "createdDate": "2025-11-01T07:17:32.988Z",
+    "status": "pending",
+    "paymentStatus": "pending"
+  }
+]

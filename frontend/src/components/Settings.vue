@@ -1,0 +1,2357 @@
+<template>
+  <div class="settings">
+    <h3>⚙️ MTM ENTERPRISE Settings</h3>
+
+    <div class="settings-tabs">
+      <button
+        :class="{ active: activeTab === 'employees' }"
+        @click="activeTab = 'employees'"
+        class="tab-btn"
+      >
+        👥 Employees
+      </button>
+      <button
+        :class="{ active: activeTab === 'vehicles' }"
+        @click="activeTab = 'vehicles'"
+        class="tab-btn"
+      >
+        🚛 Vehicles
+      </button>
+      <button
+        :class="{ active: activeTab === 'rates' }"
+        @click="activeTab = 'rates'"
+        class="tab-btn"
+      >
+        💰 Rates
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <!-- Employees Tab -->
+      <div v-if="activeTab === 'employees'" class="tab-pane">
+        <div class="employees-content">
+          <!-- Header with Stats and Add Button -->
+          <div class="employees-header">
+            <div class="header-left">
+              <h4 class="section-title">👥 Employee Management</h4>
+              <p class="section-subtitle">Manage your team members and their information</p>
+            </div>
+            <div class="header-right">
+              <div class="stats-cards">
+                <div class="stat-card">
+                  <div class="stat-number">{{ employees.length }}</div>
+                  <div class="stat-label">Total Employees</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">{{ employees.filter(e => e.cashAdvance > 0).length }}</div>
+                  <div class="stat-label">With Advances</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">{{ employees.filter(e => e.loans > 0).length }}</div>
+                  <div class="stat-label">With Loans</div>
+                </div>
+              </div>
+              <button @click="showAddEmployeeForm = !showAddEmployeeForm" class="btn-add-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                {{ showAddEmployeeForm ? 'Cancel' : 'Add Employee' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Add/Edit Employee Form -->
+          <div v-if="showAddEmployeeForm" class="employee-form-container">
+            <div class="form-header">
+              <h5>{{ editingEmployee ? '✏️ Edit Employee' : '➕ Add New Employee' }}</h5>
+              <p>{{ editingEmployee ? 'Update employee information' : 'Enter employee details to add them to your team' }}</p>
+            </div>
+
+            <form @submit.prevent="submitEmployeeForm" class="employee-form-modern">
+              <!-- Basic Information Card -->
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-icon">👤</div>
+                  <div class="card-title">Basic Information</div>
+                </div>
+                <div class="card-content">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="employeeName" class="field-label">
+                        Full Name <span class="required">*</span>
+                      </label>
+                      <input
+                        id="employeeName"
+                        v-model="employeeForm.name"
+                        type="text"
+                        required
+                        placeholder="Enter full name"
+                        class="field-input"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label for="employeePhone" class="field-label">Phone Number</label>
+                      <input
+                        id="employeePhone"
+                        v-model="employeeForm.phone"
+                        type="tel"
+                        placeholder="09123456789"
+                        class="field-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Employment Details Card -->
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-icon">🚛</div>
+                  <div class="card-title">Employment Details</div>
+                </div>
+                <div class="card-content">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="employeeLicense" class="field-label">Driver's License</label>
+                      <input
+                        id="employeeLicense"
+                        v-model="employeeForm.licenseNumber"
+                        type="text"
+                        placeholder="A01-12345"
+                        class="field-input"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label for="employeeAddress" class="field-label">Address</label>
+                      <input
+                        id="employeeAddress"
+                        v-model="employeeForm.address"
+                        type="text"
+                        placeholder="Street, City, Province"
+                        class="field-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Government IDs Card -->
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-icon">📋</div>
+                  <div class="card-title">Government IDs</div>
+                </div>
+                <div class="card-content">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="pagibigNumber" class="field-label">PAG-IBIG Number</label>
+                      <input
+                        id="pagibigNumber"
+                        v-model="employeeForm.pagibigNumber"
+                        type="text"
+                        placeholder="123456789012"
+                        class="field-input"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label for="sssNumber" class="field-label">SSS Number</label>
+                      <input
+                        id="sssNumber"
+                        v-model="employeeForm.sssNumber"
+                        type="text"
+                        placeholder="123456789012"
+                        class="field-input"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label for="philhealthNumber" class="field-label">PhilHealth Number</label>
+                      <input
+                        id="philhealthNumber"
+                        v-model="employeeForm.philhealthNumber"
+                        type="text"
+                        placeholder="1234567890123"
+                        class="field-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Financial Information Card -->
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-icon">💰</div>
+                  <div class="card-title">Financial Information</div>
+                </div>
+                <div class="card-content">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="cashAdvance" class="field-label">Cash Advance (₱)</label>
+                      <input
+                        id="cashAdvance"
+                        v-model.number="employeeForm.cashAdvance"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        class="field-input currency"
+                      />
+                      <div class="field-helper">
+                        <input
+                          id="autoDeductCashAdvance"
+                          v-model="employeeForm.autoDeductCashAdvance"
+                          type="checkbox"
+                          class="checkbox-small"
+                        />
+                        <label for="autoDeductCashAdvance" class="checkbox-label-small">Auto-deduct from salary</label>
+                      </div>
+                    </div>
+                    <div class="form-field">
+                      <label for="loans" class="field-label">Loans (₱)</label>
+                      <input
+                        id="loans"
+                        v-model.number="employeeForm.loans"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        class="field-input currency"
+                      />
+                      <div class="field-helper">
+                        <input
+                          id="autoDeductLoans"
+                          v-model="employeeForm.autoDeductLoans"
+                          type="checkbox"
+                          class="checkbox-small"
+                        />
+                        <label for="autoDeductLoans" class="checkbox-label-small">Auto-deduct from salary</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions-modern">
+                <button @click="resetEmployeeForm" type="button" class="btn-cancel-modern">Cancel</button>
+                <button type="submit" class="btn-submit-modern">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17,21 17,13 7,13 7,21"/>
+                    <polyline points="7,3 7,8 15,8"/>
+                  </svg>
+                  {{ editingEmployee ? 'Update Employee' : 'Save Employee' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="employees.length === 0 && !showAddEmployeeForm" class="empty-state-modern">
+            <div class="empty-icon">👥</div>
+            <h3>No Employees Yet</h3>
+            <p>Start building your team by adding your first employee</p>
+            <button @click="showAddEmployeeForm = true" class="btn-add-empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Your First Employee
+            </button>
+          </div>
+
+          <!-- Employees Grid -->
+          <div v-else class="employees-grid">
+            <div
+              v-for="employee in employees"
+              :key="employee.uuid"
+              class="employee-card-modern"
+            >
+              <div class="employee-header">
+                <div class="employee-avatar">
+                  <span class="avatar-text">{{ getInitials(employee.name) }}</span>
+                </div>
+                <div class="employee-basic-info">
+                  <h4 class="employee-name">{{ employee.name }}</h4>
+                  <div class="employee-meta">
+                    <span v-if="employee.phone" class="meta-item">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                      {{ employee.phone }}
+                    </span>
+                    <span v-if="employee.licenseNumber" class="meta-item">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                      </svg>
+                      {{ employee.licenseNumber }}
+                    </span>
+                  </div>
+                </div>
+                <div class="employee-actions">
+                  <button @click="editEmployee(employee)" class="btn-action edit" title="Edit Employee">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button @click="deleteEmployee(employee.uuid)" class="btn-action delete" title="Delete Employee">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      <path d="M8 10l4 4"/>
+                      <path d="M12 10l4 4"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="employee-details">
+                <div v-if="employee.address" class="detail-section">
+                  <div class="detail-icon">🏠</div>
+                  <div class="detail-content">
+                    <div class="detail-label">Address</div>
+                    <div class="detail-value">{{ employee.address }}</div>
+                  </div>
+                </div>
+
+                <div class="government-ids" v-if="employee.pagibigNumber || employee.sssNumber || employee.philhealthNumber">
+                  <div class="detail-icon">📋</div>
+                  <div class="detail-content">
+                    <div class="detail-label">Government IDs</div>
+                    <div class="id-badges">
+                      <span v-if="employee.pagibigNumber" class="id-badge">PAG-IBIG</span>
+                      <span v-if="employee.sssNumber" class="id-badge">SSS</span>
+                      <span v-if="employee.philhealthNumber" class="id-badge">PhilHealth</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="employee.cashAdvance > 0 || employee.loans > 0" class="financial-section">
+                  <div class="detail-icon">💰</div>
+                  <div class="detail-content">
+                    <div class="detail-label">Financial Status</div>
+                    <div class="financial-items">
+                      <div v-if="employee.cashAdvance > 0" class="financial-item advance">
+                        <span class="amount">₱{{ formatCurrency(employee.cashAdvance) }}</span>
+                        <span class="label">Cash Advance</span>
+                        <span v-if="employee.autoDeductCashAdvance" class="auto-badge">AUTO</span>
+                      </div>
+                      <div v-if="employee.loans > 0" class="financial-item loan">
+                        <span class="amount">₱{{ formatCurrency(employee.loans) }}</span>
+                        <span class="label">Loan</span>
+                        <span v-if="employee.autoDeductLoans" class="auto-badge">AUTO</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rates Tab -->
+      <div v-if="activeTab === 'rates'" class="tab-pane">
+        <div class="section-header">
+          <h4>Rate Management</h4>
+          <button @click="showAddRateForm = !showAddRateForm" class="btn-add" title="Add Rate/Toggle Form">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Add Rate Form -->
+        <div v-if="showAddRateForm" class="form-container">
+          <form @submit.prevent="submitRateForm" class="item-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rateOrigin">Origin</label>
+                <input
+                  id="rateOrigin"
+                  v-model="rateForm.origin"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="rateProvince">Province</label>
+                <input
+                  id="rateProvince"
+                  v-model="rateForm.province"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rateTown">Town</label>
+                <input
+                  id="rateTown"
+                  v-model="rateForm.town"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="rateAmount">Rate (PHP)</label>
+                <input
+                  id="rateAmount"
+                  v-model.number="rateForm.newRates"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button @click="resetRateForm" type="button" class="btn-cancel">Cancel</button>
+              <button type="submit" class="btn-submit">Add Rate</button>
+            </div>
+          </form>
+        </div>
+
+
+
+        <div class="rates-list">
+          <div class="rates-by-province">
+            <div
+              v-for="(provinceRates, province) in groupedRates"
+              :key="province"
+              class="province-section"
+            >
+              <h5>{{ province }} ({{ provinceRates.length }} rates)</h5>
+              <table class="rates-table">
+                <thead>
+                  <tr>
+                    <th>Town</th>
+                    <th>City/Province</th>
+                    <th>New Rate</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="rate in provinceRates" :key="rate.origin + rate.province + rate.town">
+                    <td>{{ rate.town }}</td>
+                    <td>{{ rate.province }}</td>
+                    <td class="rate-amount">₱{{ rate.newRates?.toLocaleString() || '0' }}</td>
+                    <td class="actions-cell">
+                      <button @click="editRate(rate)" class="btn-edit-small">Edit</button>
+                      <button @click="deleteRate(rate.origin, rate.province, rate.town)" class="btn-delete-small">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicles Tab -->
+      <div v-if="activeTab === 'vehicles'" class="tab-pane">
+        <div class="vehicles-content">
+          <!-- Header with Stats and Add Button -->
+          <div class="vehicles-header">
+            <div class="header-left">
+              <h4 class="section-title">🚛 Vehicle Management</h4>
+              <p class="section-subtitle">Manage your fleet and vehicle information</p>
+            </div>
+            <div class="header-right">
+              <div class="stats-cards">
+                <div class="stat-card">
+                  <div class="stat-number">{{ vehicles.length }}</div>
+                  <div class="stat-label">Total Vehicles</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">{{ getVehiclesByClass('1') }}</div>
+                  <div class="stat-label">Class 1</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">{{ getVehiclesByClass('2') }}</div>
+                  <div class="stat-label">Class 2</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">{{ getVehiclesByClass('3') }}</div>
+                  <div class="stat-label">Class 3</div>
+                </div>
+              </div>
+              <button @click="showAddVehicleForm = !showAddVehicleForm" class="btn-add-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                {{ showAddVehicleForm ? 'Cancel' : 'Add Vehicle' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Add/Edit Vehicle Form -->
+          <div v-if="showAddVehicleForm" class="vehicle-form-container">
+            <div class="form-header">
+              <h5>{{ editingVehicle ? '✏️ Edit Vehicle' : '➕ Add New Vehicle' }}</h5>
+              <p>{{ editingVehicle ? 'Update vehicle information' : 'Enter vehicle details to add to your fleet' }}</p>
+            </div>
+
+            <form @submit.prevent="submitVehicleForm" class="vehicle-form-modern">
+              <!-- Vehicle Information Card -->
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-icon">🚛</div>
+                  <div class="card-title">Vehicle Information</div>
+                </div>
+                <div class="card-content">
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label for="vehiclePlateNumber" class="field-label">
+                        Plate Number <span class="required">*</span>
+                      </label>
+                      <input
+                        id="vehiclePlateNumber"
+                        v-model="vehicleForm.plateNumber"
+                        type="text"
+                        required
+                        placeholder="ABC-123"
+                        class="field-input"
+                        style="text-transform: uppercase;"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label for="vehicleClass" class="field-label">
+                        Vehicle Class <span class="required">*</span>
+                      </label>
+                      <select
+                        id="vehicleClass"
+                        v-model="vehicleForm.vehicleClass"
+                        required
+                        class="field-input"
+                      >
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-field">
+                    <label for="vehicleName" class="field-label">Vehicle Name (Optional)</label>
+                    <input
+                      id="vehicleName"
+                      v-model="vehicleForm.name"
+                      type="text"
+                      placeholder="e.g., Delivery Truck 1, Company Van"
+                      class="field-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions-modern">
+                <button @click="resetVehicleForm" type="button" class="btn-cancel-modern">Cancel</button>
+                <button type="submit" class="btn-submit-modern">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17,21 17,13 7,13 7,21"/>
+                    <polyline points="7,3 7,8 15,8"/>
+                  </svg>
+                  {{ editingVehicle ? 'Update Vehicle' : 'Save Vehicle' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="vehicles.length === 0 && !showAddVehicleForm" class="empty-state-modern">
+            <div class="empty-icon">🚛</div>
+            <h3>No Vehicles Yet</h3>
+            <p>Start building your fleet by adding your first vehicle</p>
+            <button @click="showAddVehicleForm = true" class="btn-add-empty">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Your First Vehicle
+            </button>
+          </div>
+
+          <!-- Vehicles Grid -->
+          <div v-else class="vehicles-grid">
+            <div
+              v-for="vehicle in vehicles"
+              :key="vehicle.id"
+              class="vehicle-card-modern"
+            >
+              <div class="vehicle-header">
+                <div class="vehicle-icon">
+                  <span class="icon-text">🚛</span>
+                </div>
+                <div class="vehicle-basic-info">
+                  <h4 class="vehicle-plate">{{ vehicle.plate_number }}</h4>
+                  <div class="vehicle-meta">
+                    <span class="meta-item class-badge" :class="`class-${vehicle.vehicle_class}`">
+                      Class {{ vehicle.vehicle_class }}
+                    </span>
+                    <span v-if="vehicle.name" class="meta-item">
+                      {{ vehicle.name }}
+                    </span>
+                  </div>
+                </div>
+                <div class="vehicle-actions">
+                  <button @click="editVehicle(vehicle)" class="btn-action edit" title="Edit Vehicle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button @click="deleteVehicle(vehicle.id)" class="btn-action delete" title="Delete Vehicle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      <path d="M8 10l4 4"/>
+                      <path d="M12 10l4 4"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="vehicle-details">
+                <div class="detail-section">
+                  <div class="detail-icon">📅</div>
+                  <div class="detail-content">
+                    <div class="detail-label">Added</div>
+                    <div class="detail-value">{{ formatDate(vehicle.created_at) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Rate Modal -->
+    <div v-if="showEditRateModal" class="modal-overlay" @click="closeEditRateModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h4>Edit Rate</h4>
+          <button @click="closeEditRateModal" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="submitRateForm" class="item-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="editRateOrigin">Origin</label>
+                <input
+                  id="editRateOrigin"
+                  v-model="rateForm.origin"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="editRateProvince">Province</label>
+                <input
+                  id="editRateProvince"
+                  v-model="rateForm.province"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="editRateTown">Town</label>
+                <input
+                  id="editRateTown"
+                  v-model="rateForm.town"
+                  type="text"
+                  required
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="editRateAmount">Rate (PHP)</label>
+                <input
+                  id="editRateAmount"
+                  v-model.number="rateForm.newRates"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button @click="closeEditRateModal" type="button" class="btn-cancel">Cancel</button>
+              <button type="submit" class="btn-submit">Update Rate</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL_FALLBACK
+
+const activeTab = ref('employees')
+const employees = ref([])
+const vehicles = ref([])
+const allRates = ref([])
+const showAddEmployeeForm = ref(false)
+const showAddVehicleForm = ref(false)
+const showAddRateForm = ref(false)
+const showEditRateModal = ref(false)
+const editingEmployee = ref(null)
+const editingVehicle = ref(null)
+const editingRate = ref(null)
+const employeeForm = ref({
+  name: '',
+  phone: '',
+  licenseNumber: '',
+  pagibigNumber: '',
+  sssNumber: '',
+  philhealthNumber: '',
+  address: '',
+  cashAdvance: 0,
+  loans: 0,
+  autoDeductCashAdvance: true,
+  autoDeductLoans: true
+})
+const vehicleForm = ref({
+  plateNumber: '',
+  vehicleClass: '',
+  name: ''
+})
+const rateForm = ref({
+  origin: 'Bulacan',
+  province: '',
+  town: '',
+  newRates: ''
+})
+
+const groupedRates = computed(() => {
+  const groups = {}
+  allRates.value.forEach(rate => {
+    if (!groups[rate.province]) {
+      groups[rate.province] = []
+    }
+    groups[rate.province].push(rate)
+  })
+  return groups
+})
+
+onMounted(() => {
+  fetchSettings()
+})
+
+const fetchSettings = async () => {
+  try {
+    // Fetch employees from new unified API
+    const employeesRes = await axios.get(`${API_BASE_URL}/employees`)
+    employees.value = employeesRes.data
+
+    await fetchAllRates()
+    await fetchVehicles()
+  } catch (error) {
+    console.error('Error fetching settings:', error)
+    // Fallback to empty arrays
+    employees.value = []
+    allRates.value = []
+    vehicles.value = []
+  }
+}
+
+const fetchAllRates = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/rates`)
+    // Map database snake_case fields to camelCase
+    allRates.value = response.data.map(rate => ({
+      ...rate,
+      newRates: rate.new_rates || rate.newRates,
+      origin: rate.origin,
+      province: rate.province,
+      town: rate.town
+    }))
+  } catch (error) {
+    console.error('Error fetching rates:', error)
+    allRates.value = []
+  }
+}
+
+// Employee CRUD functions
+const submitEmployeeForm = async () => {
+  try {
+    // Set timestamps
+    const now = new Date().toISOString()
+    const formData = { ...employeeForm.value }
+
+    if (editingEmployee.value) {
+      // Update existing employee
+      formData.updated = now
+      await axios.put(`${API_BASE_URL}/employees/${editingEmployee.value.uuid}`, formData)
+      showAddEmployeeForm.value = false
+    } else {
+      // Create new employee
+      formData.created = now
+      formData.updated = now
+      await axios.post(`${API_BASE_URL}/employees`, formData)
+    }
+
+    await fetchSettings()
+    resetEmployeeForm()
+  } catch (error) {
+    console.error('Error saving employee:', error)
+    alert('Error saving employee. Please try again.')
+  }
+}
+
+const editEmployee = (employee) => {
+  editingEmployee.value = employee
+  // Load employee data into form
+  employeeForm.value = {
+    name: employee.name || '',
+    phone: employee.phone || '',
+    licenseNumber: employee.licenseNumber || '',
+    pagibigNumber: employee.pagibigNumber || '',
+    sssNumber: employee.sssNumber || '',
+    philhealthNumber: employee.philhealthNumber || '',
+    address: employee.address || '',
+    cashAdvance: employee.cashAdvance || 0,
+    loans: employee.loans || 0,
+    autoDeductCashAdvance: employee.autoDeductCashAdvance !== false, // Default true
+    autoDeductLoans: employee.autoDeductLoans !== false // Default true
+  }
+  showAddEmployeeForm.value = true
+}
+
+const deleteEmployee = async (employeeUuid) => {
+  if (confirm('Are you sure you want to delete this employee?')) {
+    try {
+      await axios.delete(`${API_BASE_URL}/employees/${employeeUuid}`)
+      await fetchSettings()
+    } catch (error) {
+      console.error('Error deleting employee:', error)
+      alert('Error deleting employee. Please try again.')
+    }
+  }
+}
+
+const resetEmployeeForm = () => {
+  employeeForm.value = {
+    name: '',
+    phone: '',
+    licenseNumber: '',
+    pagibigNumber: '',
+    sssNumber: '',
+    philhealthNumber: '',
+    address: '',
+    cashAdvance: 0,
+    loans: 0,
+    autoDeductCashAdvance: true,
+    autoDeductLoans: true
+  }
+  editingEmployee.value = null
+  showAddEmployeeForm.value = false
+}
+
+// Currency formatting helper
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-PH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount || 0)
+}
+
+// Rate CRUD functions
+const submitRateForm = async () => {
+  try {
+    if (editingRate.value) {
+      await axios.put(`${API_BASE_URL}/rates/${editingRate.value.origin}/${editingRate.value.province}/${editingRate.value.town}`, {
+        ...rateForm.value,
+        originalOrigin: editingRate.value.origin,
+        originalProvince: editingRate.value.province,
+        originalTown: editingRate.value.town
+      })
+    } else {
+      await axios.post(`${API_BASE_URL}/rates`, rateForm.value)
+    }
+    await fetchAllRates()
+    resetRateForm()
+  } catch (error) {
+    console.error('Error saving rate:', error)
+    alert('Error saving rate. Please try again.')
+  }
+}
+
+const editRate = (rate) => {
+  editingRate.value = rate
+  rateForm.value = { ...rate }
+  showEditRateModal.value = true
+}
+
+const closeEditRateModal = () => {
+  showEditRateModal.value = false
+  resetRateForm()
+}
+
+const deleteRate = async (origin, province, town) => {
+  if (confirm('Are you sure you want to delete this rate?')) {
+    try {
+      await axios.delete(`${API_BASE_URL}/rates/${encodeURIComponent(origin)}/${encodeURIComponent(province)}/${encodeURIComponent(town)}`)
+      await fetchAllRates()
+    } catch (error) {
+      console.error('Error deleting rate:', error)
+      alert('Error deleting rate. Please try again.')
+    }
+  }
+}
+
+const resetRateForm = () => {
+  rateForm.value = {
+    origin: '',
+    province: '',
+    town: '',
+    newRates: ''
+  }
+  editingRate.value = null
+  showAddRateForm.value = false
+  showEditRateModal.value = false
+}
+
+// Vehicles CRUD functions
+const fetchVehicles = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicles`)
+    vehicles.value = response.data
+  } catch (error) {
+    console.error('Error fetching vehicles:', error)
+    vehicles.value = []
+  }
+}
+
+const submitVehicleForm = async () => {
+  try {
+    if (editingVehicle.value) {
+      // Update existing vehicle
+      await axios.put(`${API_BASE_URL}/vehicles/${editingVehicle.value.id}`, vehicleForm.value)
+      showAddVehicleForm.value = false
+    } else {
+      // Create new vehicle
+      await axios.post(`${API_BASE_URL}/vehicles`, vehicleForm.value)
+    }
+
+    await fetchVehicles()
+    resetVehicleForm()
+  } catch (error) {
+    console.error('Error saving vehicle:', error)
+    if (error.response?.data?.error) {
+      alert(error.response.data.error)
+    } else {
+      alert('Error saving vehicle. Please try again.')
+    }
+  }
+}
+
+const editVehicle = (vehicle) => {
+  editingVehicle.value = vehicle
+  // Load vehicle data into form
+  vehicleForm.value = {
+    plateNumber: vehicle.plate_number || '',
+    vehicleClass: vehicle.vehicle_class || '',
+    name: vehicle.name || ''
+  }
+  showAddVehicleForm.value = true
+}
+
+const deleteVehicle = async (vehicleId) => {
+  if (confirm('Are you sure you want to delete this vehicle?')) {
+    try {
+      await axios.delete(`${API_BASE_URL}/vehicles/${vehicleId}`)
+      await fetchVehicles()
+    } catch (error) {
+      console.error('Error deleting vehicle:', error)
+      alert('Error deleting vehicle. Please try again.')
+    }
+  }
+}
+
+const resetVehicleForm = () => {
+  vehicleForm.value = {
+    plateNumber: '',
+    vehicleClass: '',
+    name: ''
+  }
+  editingVehicle.value = null
+  showAddVehicleForm.value = false
+}
+
+const getVehiclesByClass = (vehicleClass) => {
+  return vehicles.value.filter(vehicle => vehicle.vehicle_class === vehicleClass).length
+}
+
+// Date formatting helper
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  // Database now stores timestamps in local timezone (UTC+2)
+  // Display as-is without additional timezone conversion
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+// Helper function to get initials from name
+const getInitials = (name) => {
+  if (!name) return 'U'
+  return name
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+</script>
+
+<style scoped>
+.settings {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: #f8f9fa;
+  color: #666;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #e9ecef;
+}
+
+.tab-btn.active {
+  background: #007bff;
+  color: white;
+  border-bottom: 3px solid #0056b3;
+}
+
+.tab-content {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tab-pane {
+  animation: fadeIn 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.employees-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h4 {
+  margin: 0;
+  color: #333;
+}
+
+.btn-add {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: #218838;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-style: italic;
+}
+
+.items-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1rem;
+}
+
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.item-details span {
+  background: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit, .btn-delete {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit svg {
+  color: #007bff;
+  fill: none;
+  stroke: #007bff;
+  transition: color 0.2s;
+}
+
+.btn-edit:hover svg {
+  color: #0056b3;
+  stroke: #0056b3;
+}
+
+.btn-delete svg {
+  color: #dc3545;
+  fill: none;
+  stroke: #dc3545;
+  transition: color 0.2s;
+}
+
+.btn-delete:hover svg {
+  color: #c82333;
+  stroke: #c82333;
+}
+
+.btn-edit {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-edit:hover {
+  background: #e0a800;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h4 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0.25rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+/* Rates specific styles */
+.rates-info {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border-radius: 6px;
+  border-left: 4px solid #2196f3;
+}
+
+.info-text, .upload-info {
+  margin: 0 0 0.5rem 0;
+  color: #1565c0;
+  font-size: 0.9rem;
+}
+
+.upload-info {
+  margin-bottom: 0;
+}
+
+.province-section {
+  margin-bottom: 2rem;
+}
+
+.province-section h5 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+}
+
+.rates-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 1rem 0;
+}
+
+.rates-table th {
+  background: #f8f9fa;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rates-table th:last-child {
+  border-right: none;
+  text-align: center;
+}
+
+/* Removed overriding rule - now all columns are center-aligned */
+
+.rates-table td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+.rates-table td:last-child {
+  border-right: none;
+}
+
+/* Previously right-aligned, now center-aligned with the rest */
+
+.rates-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rate-amount {
+  font-weight: bold;
+  color: #28a745;
+  text-align: right;
+  width: 120px;
+  white-space: nowrap;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+.rates-table th,
+.rates-table td {
+  text-align: center;
+}
+
+.btn-edit-small, .btn-delete-small {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  margin: 0 0.125rem;
+}
+
+.btn-edit-small {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-delete-small {
+  background: #dc3545;
+  color: white;
+}
+
+/* Enhanced Form Styles */
+.form-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-section {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1.5rem;
+  background: #f8f9fa;
+}
+
+.section-title {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.checkbox-group {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-label {
+  font-size: 0.85rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.currency-input {
+  text-align: right;
+}
+
+/* Employee Details Styles */
+.employee-card .item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-row span {
+  background: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.financial-info {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.auto-indicator {
+  color: #17a2b8;
+  font-weight: bold;
+  margin-left: 0.25rem;
+}
+
+.cash-advance {
+  color: #fd7e14;
+  font-weight: 500;
+}
+
+.loan-amount {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+/* Modern Employee Management Styles */
+.employees-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.header-left {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.stats-cards {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-add-primary {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add-primary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Modern Form Styles */
+.employee-form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.form-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+.form-header h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.form-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.employee-form-modern {
+  padding: 2rem;
+}
+
+.form-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.card-header {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card-icon {
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.required {
+  color: #e53e3e;
+}
+
+.field-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.field-input.currency {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.field-helper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.checkbox-small {
+  width: 14px;
+  height: 14px;
+}
+
+.checkbox-label-small {
+  font-size: 0.8rem;
+  color: #718096;
+  cursor: pointer;
+}
+
+.form-actions-modern {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.btn-cancel-modern {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  color: #4a5568;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel-modern:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.btn-submit-modern {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.btn-submit-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Empty State */
+.empty-state-modern {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty-state-modern h3 {
+  color: #2d3748;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty-state-modern p {
+  color: #718096;
+  margin: 0 0 2rem 0;
+  font-size: 1rem;
+}
+
+.btn-add-empty {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-empty:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Employees Grid */
+.employees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.employee-card-modern {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.employee-card-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.employee-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.employee-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.avatar-text {
+  text-transform: uppercase;
+}
+
+.employee-basic-info {
+  flex: 1;
+}
+
+.employee-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 0.5rem 0;
+}
+
+.employee-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #718096;
+  background: rgba(113, 128, 150, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.employee-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.btn-action.edit {
+  background: transparent !important;
+}
+
+.btn-action.edit:hover {
+  transform: scale(1.1);
+}
+
+.btn-action.delete {
+  background: transparent !important;
+}
+
+.btn-action.delete:hover {
+  transform: scale(1.1);
+}
+
+.btn-action.edit svg {
+  color: #007bff;
+  fill: none;
+  stroke: #007bff;
+  transition: color 0.2s;
+}
+
+.btn-action.edit:hover svg {
+  color: #0056b3;
+  stroke: #0056b3;
+}
+
+.btn-action.delete svg {
+  color: #dc3545;
+  fill: none;
+  stroke: #dc3545;
+  transition: color 0.2s;
+}
+
+.btn-action.delete:hover svg {
+  color: #c82333;
+  stroke: #c82333;
+}
+
+.employee-details {
+  padding: 1.5rem;
+}
+
+.detail-section,
+.government-ids,
+.financial-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+.detail-section:last-child,
+.government-ids:last-child,
+.financial-section:last-child {
+  margin-bottom: 0;
+}
+
+.detail-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #2d3748;
+  line-height: 1.4;
+}
+
+.id-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.id-badge {
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.financial-items {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.financial-item {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.75rem;
+  min-width: 120px;
+  text-align: center;
+}
+
+.financial-item.advance {
+  border-color: #fbbf24;
+  background: #fefce8;
+}
+
+.financial-item.loan {
+  border-color: #f56565;
+  background: #fef2f2;
+}
+
+.amount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2d3748;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.label {
+  font-size: 0.7rem;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auto-badge {
+  background: #38b2ac;
+  color: white;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .employees-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .stats-cards {
+    justify-content: center;
+  }
+
+  .header-right {
+    align-items: center;
+  }
+
+  .employees-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .employee-meta {
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions-modern {
+    flex-direction: column;
+  }
+
+  .financial-items {
+    flex-direction: column;
+  }
+
+  .detail-section,
+  .government-ids,
+  .financial-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Utility Classes */
+
+/* Vehicles Styles */
+.vehicles-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.vehicles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.vehicle-form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.vehicle-form-modern {
+  padding: 2rem;
+}
+
+.vehicles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.vehicle-card-modern {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.vehicle-card-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.vehicle-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.icon-text {
+  font-size: 1.5rem;
+}
+
+.vehicle-basic-info {
+  flex: 1;
+}
+
+.vehicle-plate {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vehicle-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.class-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vehicle-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vehicle-details {
+  padding: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .employees-header,
+  .vehicles-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .stats-cards {
+    justify-content: center;
+  }
+
+  .header-right {
+    align-items: center;
+  }
+
+  .employees-grid,
+  .vehicles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-header,
+  .vehicle-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .employee-meta,
+  .vehicle-meta {
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions-modern {
+    flex-direction: column;
+  }
+
+  .financial-items {
+    flex-direction: column;
+  }
+
+  .detail-section,
+  .government-ids,
+  .financial-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .item-card {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .settings-tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .employee-form,
+  .vehicle-form-modern {
+    gap: 1rem;
+  }
+
+  .form-section {
+    padding: 1rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+</style>

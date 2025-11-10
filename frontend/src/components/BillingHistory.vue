@@ -1,0 +1,1051 @@
+<template>
+  <div class="billing-history">
+    <div class="header-section">
+      <h1 class="page-title">Billing History</h1>
+      <p class="page-subtitle">View and manage all saved billing statements</p>
+    </div>
+
+    <div class="filters-section" v-if="billings.length > 0">
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="status-filter">Filter by Status:</label>
+          <select id="status-filter" v-model="statusFilter" class="status-select" @change="filterBillings">
+            <option value="all">All Status</option>
+            <option value="pending">Pending Payment</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="search-input">Search Billings:</label>
+          <input
+            type="text"
+            id="search-input"
+            v-model="searchQuery"
+            class="search-input"
+            placeholder="Search by billing number, client, or preparer"
+            @input="filterBillings"
+          />
+        </div>
+
+        <div class="stats-info">
+          <span class="stat-item">
+            Total: <strong>{{ billings.length }}</strong>
+          </span>
+          <span class="stat-item">
+            Pending: <strong>{{ billings.filter(b => b.paymentStatus === 'pending').length }}</strong>
+          </span>
+          <span class="stat-item">
+            Paid: <strong>{{ billings.filter(b => b.paymentStatus === 'paid').length }}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Billings Message -->
+    <div v-if="billings.length === 0" class="no-billings">
+      <div class="no-billings-content">
+        <h2>No Saved Billings</h2>
+        <p>You haven't saved any billing statements yet.</p>
+        <button @click="$emit('switch-to-create')" class="btn btn-primary">Create Billing Statement</button>
+      </div>
+    </div>
+
+    <!-- Billings List -->
+    <div v-else class="billings-grid">
+      <div
+        v-for="billing in filteredBillings"
+        :key="billing.id"
+        class="billing-card"
+        :class="{ 'paid': billing.paymentStatus === 'paid', 'pending': billing.paymentStatus === 'pending' }"
+      >
+        <div class="billing-header">
+          <div class="billing-status" :class="billing.paymentStatus">
+            {{ billing.paymentStatus === 'paid' ? '✓ Paid' : '⏰ Pending' }}
+          </div>
+          <div class="billing-meta">
+            <small>Created: {{ formatDate(billing.createdDate) }}</small>
+          </div>
+        </div>
+
+        <div class="billing-details">
+          <div class="billing-info-row">
+            <span class="label">Period:</span>
+            <span class="value">{{ billing.period.periodText }}</span>
+          </div>
+
+          <div class="billing-info-row">
+            <span class="label">Billing Number:</span>
+            <span class="value">{{ billing.billingNumber }}</span>
+          </div>
+
+          <div class="billing-info-row">
+            <span class="label">Client:</span>
+            <span class="value">{{ billing.client.name }}</span>
+          </div>
+
+          <div class="billing-info-row">
+            <span class="label">Prepared by:</span>
+            <span class="value">{{ billing.preparedBy }}</span>
+          </div>
+
+          <div class="billing-info-row">
+            <span class="label">Total Trips:</span>
+            <span class="value">{{ billing.trips.length }}</span>
+          </div>
+
+          <div class="billing-info-row">
+            <span class="label">Total Bags:</span>
+            <span class="value">{{ billing.totals.totalBags }}</span>
+          </div>
+
+          <div class="billing-info-row total-amount">
+            <span class="label">Total Amount:</span>
+            <span class="value">₱{{ formatCurrency(billing.totals.totalRevenue) }}</span>
+          </div>
+        </div>
+
+        <div class="billing-actions">
+          <button @click="viewBilling(billing)" class="btn btn-view">
+            <i class="eye-icon">👁</i> View Details
+          </button>
+          <button @click="togglePaymentStatus(billing)" class="btn" :class="billing.paymentStatus === 'paid' ? 'btn-secondary' : 'btn-success'">
+            {{ billing.paymentStatus === 'paid' ? 'Mark as Pending' : 'Mark as Paid' }}
+          </button>
+          <button @click="exportBilling(billing)" class="btn btn-export">
+            <i class="export-icon">🖨</i> Print
+          </button>
+          <button @click="deleteBilling(billing)" class="btn btn-danger">
+            <i class="delete-icon">🗑</i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billing Details Modal -->
+    <div v-if="selectedBilling" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>{{ selectedBilling.billingNumber }}</h2>
+          <button @click="closeModal" class="close-btn">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="billing-info-section">
+            <h3>Billing Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Status:</label>
+                <span :class="selectedBilling.paymentStatus">{{ selectedBilling.paymentStatus === 'paid' ? '✓ Paid' : '⏰ Pending' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Period:</label>
+                <span>{{ selectedBilling.period.periodText }}</span>
+              </div>
+              <div class="info-item">
+                <label>Created:</label>
+                <span>{{ formatDate(selectedBilling.createdDate) }}</span>
+              </div>
+              <div class="info-item">
+                <label>Prepared by:</label>
+                <span>{{ selectedBilling.preparedBy }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="client-info-section">
+            <h3>Client Information</h3>
+            <div class="client-details">
+              <p><strong>{{ selectedBilling.client.name }}</strong></p>
+              <p>{{ selectedBilling.client.address }}</p>
+              <p>{{ selectedBilling.client.city }}, {{ selectedBilling.client.zipCode }}</p>
+              <p>TIN: {{ selectedBilling.client.tin }}</p>
+            </div>
+          </div>
+
+          <div class="trips-section">
+            <h3>Trip Details ({{ selectedBilling.trips.length }} trips)</h3>
+            <div class="trips-table-container">
+              <table class="trips-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Plate</th>
+                    <th>Invoice</th>
+                    <th>Destination</th>
+                    <th>Bags</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="trip in selectedBilling.trips" :key="trip.id">
+                    <td>{{ formatDateShort(trip.date) }}</td>
+                    <td>{{ trip.truckPlate }}</td>
+                    <td>{{ trip.invoiceNumber }}</td>
+                    <td>{{ trip.destination }}</td>
+                    <td class="text-center">{{ trip.numberOfBags }}</td>
+                    <td class="text-right">₱{{ formatCurrency(trip.rate) }}</td>
+                    <td class="text-right">₱{{ formatCurrency(trip.total) }}</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="totals-row">
+                    <td colspan="4" class="text-left"><strong>TOTALS:</strong></td>
+                    <td class="text-center"><strong>{{ selectedBilling.totals.totalBags }}</strong></td>
+                    <td></td>
+                    <td class="text-right"><strong>₱{{ formatCurrency(selectedBilling.totals.totalRevenue) }}</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button @click="exportBilling(selectedBilling)" class="btn btn-primary">Print</button>
+          <button @click="togglePaymentStatus(selectedBilling)" class="btn" :class="selectedBilling.paymentStatus === 'paid' ? 'btn-secondary' : 'btn-success'">
+            {{ selectedBilling.paymentStatus === 'paid' ? 'Mark as Pending' : 'Mark as Paid' }}
+          </button>
+          <button @click="closeModal" class="btn btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import axios from 'axios'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+
+const billings = ref([])
+const filteredBillings = ref([])
+const statusFilter = ref('all')
+const searchQuery = ref('')
+const selectedBilling = ref(null)
+const currentPage = ref(1)
+const pageSize = ref(20)
+const totalBillings = ref(0)
+const totalPages = ref(0)
+const loading = ref(false)
+
+// Methods
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  // Database now stores timestamps in local timezone (UTC+2)
+  // Display as-is without additional timezone conversion
+  return new Date(dateString).toLocaleDateString('en-PH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const formatDateShort = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('en-PH', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-PH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount)
+}
+
+const fetchBillings = async (page = 1) => {
+  try {
+    loading.value = true
+    // Try API first (server-side persistence)
+    const response = await axios.get(`${API_BASE_URL}/billings?page=${page}&limit=${pageSize.value}`)
+    if (response.status === 200) {
+      const data = response.data
+      if (data.billings && data.pagination) {
+        // Paginated response
+        billings.value = data.billings
+        totalBillings.value = data.pagination.total
+        totalPages.value = data.pagination.totalPages
+        currentPage.value = data.pagination.page
+      } else {
+        // Fallback for non-paginated response
+        billings.value = data
+        totalBillings.value = data.length
+        totalPages.value = 1
+        currentPage.value = 1
+      }
+      filteredBillings.value = [...billings.value]
+      console.log('Loaded billings from server:', billings.value.length, 'of', totalBillings.value)
+      return
+    }
+
+  } catch (apiError) {
+    console.warn('API not available, trying localStorage:', apiError.message)
+
+    // Fallback to localStorage
+    try {
+      const localData = localStorage.getItem('billingHistory')
+      if (localData) {
+        billings.value = JSON.parse(localData)
+        filteredBillings.value = [...billings.value]
+        totalBillings.value = billings.value.length
+        totalPages.value = 1
+        currentPage.value = 1
+        console.log('Loaded billings from localStorage:', billings.value.length)
+        return
+      }
+    } catch (localError) {
+      console.error('localStorage error:', localError)
+    }
+
+    // Last resort - empty array
+    billings.value = []
+    totalBillings.value = 0
+    totalPages.value = 0
+    currentPage.value = 1
+  }
+
+  filteredBillings.value = [...billings.value]
+  loading.value = false
+}
+
+const filterBillings = () => {
+  let filtered = [...billings.value]
+
+  // Status filter
+  if (statusFilter.value !== 'all') {
+    filtered = filtered.filter(billing =>
+      billing.paymentStatus === statusFilter.value
+    )
+  }
+
+  // Search filter
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(billing =>
+      billing.billingNumber.toLowerCase().includes(query) ||
+      billing.client.name.toLowerCase().includes(query) ||
+      billing.preparedBy.toLowerCase().includes(query)
+    )
+  }
+
+  filteredBillings.value = filtered
+}
+
+const viewBilling = (billing) => {
+  selectedBilling.value = billing
+}
+
+const closeModal = () => {
+  selectedBilling.value = null
+}
+
+const togglePaymentStatus = async (billing) => {
+  const newStatus = billing.paymentStatus === 'paid' ? 'pending' : 'paid'
+
+  try {
+    // Try to update via API first
+    const response = await axios.put(`${API_BASE_URL}/billings/${billing.id}`, {
+      ...billing,
+      paymentStatus: newStatus
+    })
+
+    if (response.status === 200) {
+      // Update local data
+      billing.paymentStatus = newStatus
+
+      console.log('Updated billing status:', billing.id, newStatus)
+      alert(`Billing ${billing.billingNumber} marked as ${newStatus === 'paid' ? 'Paid' : 'Pending'}`)
+      return
+    }
+
+  } catch (apiError) {
+    console.warn('API update failed, using localStorage:', apiError.message)
+  }
+
+  // Fallback: Update in localStorage
+  try {
+    billing.paymentStatus = newStatus
+    const savedBillings = JSON.stringify(billings.value)
+    localStorage.setItem('billingHistory', savedBillings)
+
+    console.log('Updated billing status locally:', billing.id, newStatus)
+    alert(`Billing ${billing.billingNumber} marked as ${newStatus === 'paid' ? 'Paid' : 'Pending'} (stored locally)`)
+
+  } catch (localError) {
+    console.error('Local storage update failed:', localError)
+    alert('Status update failed completely. Please try again.')
+  }
+
+  // Close modal if open
+  if (selectedBilling.value) {
+    selectedBilling.value.paymentStatus = newStatus
+  }
+}
+
+const deleteBilling = async (billing) => {
+  const confirmed = confirm(`Are you sure you want to delete billing "${billing.billingNumber}"? This action cannot be undone.`)
+
+  if (!confirmed) return
+
+  try {
+    // Try to delete via API first
+    const response = await axios.delete(`${API_BASE_URL}/billings/${billing.id}`)
+    if (response.status === 200) {
+      // Remove from local arrays
+      const index = billings.value.findIndex(b => b.id === billing.id)
+      if (index !== -1) {
+        billings.value.splice(index, 1)
+        filterBillings()
+      }
+
+      console.log('Deleted billing:', billing.id)
+      alert(`Billing "${billing.billingNumber}" has been deleted successfully.`)
+      return
+    }
+
+  } catch (apiError) {
+    console.warn('API delete failed, using localStorage:', apiError.message)
+  }
+
+  // Fallback: Delete from localStorage
+  try {
+    const index = billings.value.findIndex(b => b.id === billing.id)
+    if (index !== -1) {
+      billings.value.splice(index, 1)
+      filterBillings()
+
+      const savedBillings = JSON.stringify(billings.value)
+      localStorage.setItem('billingHistory', savedBillings)
+
+      console.log('Deleted billing locally:', billing.id)
+      alert(`Billing "${billing.billingNumber}" has been deleted successfully (local storage only).`)
+    }
+
+  } catch (localError) {
+    console.error('Local storage delete failed:', localError)
+    alert('Delete failed completely. Please try again.')
+  }
+}
+
+const exportBilling = (billing) => {
+  // Create print-friendly version similar to printStatement function
+  const billToInfo = `Premium Feeds Corp.
+798 Maharlika Highway, Dampol 2nd A
+Pulilan Bulacan, 3005
+TIN #007-932-128-000
+Business Style: 007-932-128-000`.replace(/\n/g, '<br>')
+
+  const companyInfo = `MTM ENTERPRISE
+0324 P. Damaso St. Virgen Delas Flores Baliuag Bulacan
+TIN # 175-434-337-000
+Mobile No. 09605638462 / Telegram No. +358-044-978-8592`.replace(/\n/g, '<br>')
+
+  let tableHTML = `
+<table style="width: 100%; border-collapse: collapse; font-size: 10px; font-family: Arial, sans-serif; margin-top: 20px;">
+<thead>
+<tr style="background: #f0f0f0;">
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">DATE</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">PLATE NUMBER</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">INVOICE NUMBER</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">DESTINATION</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">NUMBER OF BAGS</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">RATE PER BAG</th>
+<th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">TOTAL</th>
+</tr>
+</thead>
+<tbody>`
+
+  billing.trips.forEach((trip, index) => {
+    const bgColor = index % 2 === 1 ? '#fafafa' : 'white'
+    tableHTML += `
+<tr style="background: ${bgColor};">
+<td style="border: 1px solid #000; padding: 6px; text-align: center;">${formatDateShort(trip.date)}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: center;">${trip.truckPlate}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: center;">${trip.invoiceNumber}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: center;">${trip.destination}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: center;">${trip.numberOfBags}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: right;">₱${formatCurrency(trip.rate)}</td>
+<td style="border: 1px solid #000; padding: 6px; text-align: right;">₱${formatCurrency(trip.total)}</td>
+</tr>`
+  })
+
+  tableHTML += `
+<tr style="background: #e0e0e0; font-weight: bold;">
+<td colspan="4" style="border: 2px solid #000; padding: 10px; text-align: left; font-size: 12px;">GRAND TOTAL:</td>
+<td style="border: 2px solid #000; padding: 10px; text-align: center; font-size: 14px;">${billing.totals.totalBags}</td>
+<td style="border: 2px solid #000; padding: 10px; text-align: center;"></td>
+<td style="border: 2px solid #000; padding: 10px; text-align: right; font-size: 14px;">₱${formatCurrency(billing.totals.totalRevenue)}</td>
+</tr>
+</tbody>
+</table>`
+
+  const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Print Preview</title>
+<style>
+@media print {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; color: #000; padding: 0; }
+  .no-print { display: none; }
+  .company-name-print { font-size: 28px; font-weight: bold; text-align: center; letter-spacing: 2px; margin-bottom: 15px; }
+  .company-details-print { font-size: 14px; text-align: center; line-height: 1.4; margin-bottom: 20px; }
+  .billing-title-print { font-size: 20px; font-weight: bold; text-align: center; margin: 15px 0 20px 0; }
+  .bill-to-print { margin-bottom: 20px; }
+  .bill-to-title-print { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+  .bill-to-details-print { font-size: 12px; line-height: 1.4; margin-bottom: 15px; }
+  .billing-info-print { font-size: 12px; margin-bottom: 15px; text-align: left; line-height: 1.4; }
+  @page { size: A4; margin: 25mm; }
+}
+</style>
+</head>
+<body>
+<div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
+<h1 class="company-name-print">MTM ENTERPRISE</h1>
+<div class="company-details-print">
+${companyInfo}
+</div>
+<h2 class="billing-title-print">BILLING STATEMENT</h2>
+</div>
+
+<div class="bill-to-print">
+<strong class="bill-to-title-print">BILLED TO:</strong><br>
+<div class="bill-to-details-print">
+${billToInfo}
+</div>
+</div>
+
+<div class="billing-info-print">
+<strong>Billing Number:</strong> ${billing.billingNumber}<br>
+<strong>Period Covered:</strong> ${billing.period.periodText}<br>
+<strong>Date Generated:</strong> ${formatDate(billing.createdDate)}
+</div>
+
+${tableHTML}
+
+<div style="margin-top: 30px; padding: 15px 0; font-size: 14px; font-weight: bold;">
+<strong>Prepared by:</strong> ${billing.preparedBy}
+</div>
+</body>
+</html>`
+
+  // Create print window
+  const printWindow = window.open('', '_blank')
+  printWindow.document.write(printContent)
+  printWindow.document.close()
+
+  // Wait for content to load then print
+  printWindow.onload = () => {
+    printWindow.print()
+  }
+}
+
+
+
+// Lifecycle
+onMounted(async () => {
+  await fetchBillings()
+})
+</script>
+
+<style scoped>
+.billing-history {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.filters-section {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 2rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.status-select,
+.search-input {
+  padding: 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.search-input {
+  min-width: 300px;
+}
+
+.status-select:focus,
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.stats-info {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.stat-item {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.no-billings {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.no-billings-content {
+  text-align: center;
+}
+
+.no-billings-content h2 {
+  color: #6b7280;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.no-billings-content p {
+  color: #9ca3af;
+  margin: 0 0 2rem 0;
+}
+
+.billings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.billing-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: white;
+  transition: all 0.2s;
+}
+
+.billing-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.billing-card.paid {
+  border-color: #059669;
+  background: #f0fdf4;
+}
+
+.billing-card.pending {
+  border-color: #d97706;
+  background: #fffbeb;
+}
+
+.billing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.billing-number h3 {
+  margin: 0 0 0.25rem 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+}
+
+.billing-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.billing-status.paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.billing-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.billing-meta {
+  text-align: right;
+}
+
+.billing-meta small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.billing-details {
+  margin-bottom: 1.5rem;
+}
+
+.billing-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.billing-info-row .label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.billing-info-row .value {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.billing-number-text {
+  font-weight: bold;
+  color: #dc2626;
+  font-size: 1rem;
+  background-color: #fef2f2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.billing-info-row.total-amount {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 1rem;
+}
+
+.billing-info-row.total-amount .value {
+  color: #059669;
+  font-weight: bold;
+}
+
+.billing-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: #f9fafb;
+}
+
+.btn-view {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.btn-view:hover {
+  background: #dbeafe;
+}
+
+.btn-success {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+}
+
+.btn-success:hover {
+  background: #bbf7d0;
+}
+
+.btn-export {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+.btn-export:hover {
+  background: #fde68a;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-danger {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.btn-danger:hover {
+  background: #fecaca;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.billing-info-section,
+.client-info-section,
+.trips-section {
+  margin-bottom: 2rem;
+}
+
+.billing-info-section h3,
+.client-info-section h3,
+.trips-section h3 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 1.125rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.info-item label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.info-item span {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.info-item span.paid {
+  color: #059669;
+}
+
+.info-item span.pending {
+  color: #d97706;
+}
+
+.client-details p {
+  margin: 0.25rem 0;
+  color: #374151;
+}
+
+.trips-table-container {
+  overflow-x: auto;
+}
+
+.trips-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.trips-table th,
+.trips-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+}
+
+.trips-table th {
+  background: #f9fafb;
+  font-weight: 600;
+  text-align: left;
+}
+
+.trips-table .totals-row {
+  background: #f3f4f6;
+  font-weight: bold;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modal-footer .btn {
+  padding: 0.75rem 1.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .billing-history {
+    padding: 1rem;
+  }
+
+  .billings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stats-info {
+    justify-content: center;
+  }
+
+  .billing-actions {
+    flex-direction: column;
+  }
+
+  .billing-info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+}
+</style>

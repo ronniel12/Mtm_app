@@ -1,0 +1,1108 @@
+[
+  {
+    "id": 96,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "San Jose",
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Bugallon",
+    "rate": 52,
+    "newRates": 52
+  },
+  {
+    "id": 98,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "San Juan",
+    "newRates": 59.5
+  },
+  {
+    "id": 100,
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "San Antonio",
+    "newRates": 55.5
+  },
+  {
+    "id": 101,
+    "origin": "Bulacan",
+    "province": "Bulacan",
+    "town": "San Ildefonso",
+    "newRates": 30
+  },
+  {
+    "id": 102,
+    "origin": "Bulacan",
+    "province": "Bulacan",
+    "town": "San Miguel",
+    "newRates": 30
+  },
+  {
+    "id": 103,
+    "origin": "Bulacan",
+    "province": "Bataan",
+    "town": "Orion",
+    "newRates": 46
+  },
+  {
+    "id": 99,
+    "origin": "Bulacan",
+    "province": "Bataan",
+    "town": "Balanga City",
+    "newRates": 46
+  },
+  {
+    "id": 104,
+    "origin": "Bulacan",
+    "province": "Bataan",
+    "town": "Limay",
+    "newRates": 46
+  },
+  {
+    "id": 106,
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Bautista",
+    "newRates": 48.5
+  },
+  {
+    "id": 108,
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Pantabangan",
+    "newRates": 43
+  },
+  {
+    "id": 110,
+    "origin": "Bulacan",
+    "province": "Pampanga",
+    "town": "Magalang",
+    "newRates": 29
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Agno",
+    "rate": 56,
+    "newRates": 56.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Aguilar",
+    "rate": 51,
+    "newRates": 51.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Alaminos",
+    "rate": 55,
+    "newRates": 55.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Binalonan",
+    "rate": 46,
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Balungao",
+    "rate": 48,
+    "newRates": 48.5
+  },
+  {
+    "id": 107,
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Bayambang",
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Burgos",
+    "rate": 56,
+    "newRates": 56.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Calasiao",
+    "rate": 52,
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Dagupan",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Dasol",
+    "rate": 56,
+    "newRates": 56.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Infanta",
+    "rate": 55,
+    "newRates": 55.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Labrador",
+    "rate": 54,
+    "newRates": 54.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Laoac",
+    "rate": 52,
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Lingayen",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Mabini",
+    "rate": 58,
+    "newRates": 56.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Sual",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Malasiqui",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Manaoag",
+    "rate": 52,
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Mangaldan",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Mangatarem",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Mapandan",
+    "rate": 52,
+    "newRates": 52.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Natividad",
+    "rate": 49,
+    "newRates": 49.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Pozorrubio",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Rosales",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "San Carlos",
+    "rate": 51,
+    "newRates": 51.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "San Fabian",
+    "rate": 54,
+    "newRates": 54.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "San Jacinto",
+    "rate": 53,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Sison",
+    "rate": 55,
+    "newRates": 55.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Sta Barbara",
+    "rate": 47,
+    "newRates": 47.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Umingan",
+    "rate": 47,
+    "newRates": 47.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Urbiztondo",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Urdaneta",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Pangasinan",
+    "town": "Villasis",
+    "rate": 46,
+    "newRates": 46.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Cabanatuan",
+    "rate": 40,
+    "newRates": 36
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Cabiao",
+    "rate": 38,
+    "newRates": 34
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Cuyapo",
+    "rate": 44,
+    "newRates": 40
+  },
+  {
+    "id": 105,
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Gapan",
+    "newRates": 33
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Gen. Tinio",
+    "rate": 43,
+    "newRates": 39
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Guimba",
+    "rate": 42,
+    "newRates": 38
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Jaen",
+    "rate": 38,
+    "newRates": 34
+  },
+  {
+    "id": 111,
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Licab",
+    "newRates": 40
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Lupao",
+    "rate": 45,
+    "newRates": 41
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Munoz",
+    "rate": 42,
+    "newRates": 38
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Natividad",
+    "rate": 43,
+    "newRates": 39
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Penaranda",
+    "rate": 38,
+    "newRates": 34
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Quezon",
+    "rate": 45,
+    "newRates": 41
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Rizal",
+    "rate": 45,
+    "newRates": 41
+  },
+  {
+    "id": 112,
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "San Antonio",
+    "newRates": 39
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "San Jose",
+    "rate": 43,
+    "newRates": 39
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "San Leonardo",
+    "rate": 38,
+    "newRates": 34
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Sto Domingo",
+    "rate": 42,
+    "newRates": 38
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Sta Rosa",
+    "rate": 38,
+    "newRates": 34
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Talavera",
+    "rate": 42,
+    "newRates": 38
+  },
+  {
+    "id": 113,
+    "origin": "Bulacan",
+    "province": "Nueva Ecija",
+    "town": "Talugtog",
+    "newRates": 40
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Botolan",
+    "rate": 50,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Candelaria",
+    "rate": 62,
+    "newRates": 65.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Castillejos",
+    "rate": 41,
+    "newRates": 44.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Iba",
+    "rate": 50,
+    "newRates": 53.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Olongapo",
+    "rate": 39,
+    "newRates": 42.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "San Antonio",
+    "rate": 44,
+    "newRates": 47.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "San Felipe",
+    "rate": 44,
+    "newRates": 56
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "San Marcelino",
+    "rate": 44,
+    "newRates": 56
+  },
+  {
+    "id": 114,
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "San Narciso",
+    "newRates": 56
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Sta. Cruz",
+    "rate": 62,
+    "newRates": 74
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Zambales",
+    "town": "Subic",
+    "rate": 40,
+    "newRates": 52
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Agoo",
+    "rate": 62,
+    "newRates": 65
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Aringay",
+    "rate": 64,
+    "newRates": 67
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Bacnotan",
+    "rate": 62,
+    "newRates": 65
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Bauang",
+    "rate": 62,
+    "newRates": 65
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Caba",
+    "rate": 62,
+    "newRates": 66
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Luna",
+    "rate": 64,
+    "newRates": 67
+  },
+  {
+    "id": 115,
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Mt. Province",
+    "newRates": 63
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Naguilian",
+    "rate": 63,
+    "newRates": 66
+  },
+  {
+    "id": 109,
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Pugo",
+    "newRates": 65
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Rosario",
+    "rate": 58,
+    "newRates": 61
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Sudipen",
+    "rate": 62,
+    "newRates": 66
+  },
+  {
+    "origin": "Bulacan",
+    "province": "La Union",
+    "town": "Tubao",
+    "rate": 63,
+    "newRates": 66
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "Anao",
+    "rate": 50,
+    "newRates": 46
+  },
+  {
+    "id": 116,
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "La Paz",
+    "newRates": 42
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "Mayantoc",
+    "rate": 46,
+    "newRates": 42
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "Paniqui",
+    "rate": 62,
+    "newRates": 41
+  },
+  {
+    "id": 117,
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "Sta. Ignacia",
+    "newRates": 34
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "San Clemente",
+    "rate": 41,
+    "newRates": 42
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Tarlac",
+    "town": "Tarlac",
+    "rate": 43,
+    "newRates": 40
+  },
+  {
+    "id": 118,
+    "origin": "Bulacan",
+    "province": "Pampanga",
+    "town": "San Luis",
+    "newRates": 28.5
+  },
+  {
+    "id": 119,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Agoncillo",
+    "newRates": 63.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Batangas",
+    "rate": 57,
+    "newRates": 52.5
+  },
+  {
+    "id": 120,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Bauan",
+    "newRates": 53.5
+  },
+  {
+    "id": 121,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Calaca",
+    "newRates": 59.5
+  },
+  {
+    "id": 122,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Calatagan",
+    "newRates": 63.5
+  },
+  {
+    "id": 123,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Cuenca",
+    "newRates": 55.5
+  },
+  {
+    "id": 124,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Ibaan",
+    "newRates": 52.5
+  },
+  {
+    "id": 125,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Laure",
+    "newRates": 61.5
+  },
+  {
+    "id": 126,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Lemery",
+    "newRates": 60.5
+  },
+  {
+    "id": 127,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Lian",
+    "newRates": 54.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Lipa ",
+    "rate": 52,
+    "newRates": 51.4
+  },
+  {
+    "id": 128,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Mabini",
+    "newRates": 55.5
+  },
+  {
+    "id": 129,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Malvar",
+    "newRates": 51.5
+  },
+  {
+    "id": 130,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Nasugbu",
+    "newRates": 54.5
+  },
+  {
+    "id": 131,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Padre Garcia",
+    "newRates": 51.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Rosario",
+    "rate": 53,
+    "newRates": 52.5
+  },
+  {
+    "id": 132,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "San Pascual",
+    "newRates": 58.5
+  },
+  {
+    "id": 133,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Sto. Tomas",
+    "newRates": 51.5
+  },
+  {
+    "id": 134,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Talisay",
+    "newRates": 52.5
+  },
+  {
+    "id": 135,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Tanauan",
+    "newRates": 51.5
+  },
+  {
+    "id": 136,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Taysan",
+    "newRates": 56.5
+  },
+  {
+    "id": 137,
+    "origin": "Bulacan",
+    "province": "Batangas",
+    "town": "Tuy",
+    "newRates": 56.5
+  },
+  {
+    "id": 138,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Alaminos",
+    "newRates": 49.5
+  },
+  {
+    "id": 139,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Binan",
+    "newRates": 46.5
+  },
+  {
+    "id": 140,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Cabuyao",
+    "newRates": 48.5
+  },
+  {
+    "id": 141,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Calauan",
+    "newRates": 49.5
+  },
+  {
+    "id": 142,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Calamba",
+    "newRates": 46.5
+  },
+  {
+    "id": 143,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Cavinti",
+    "newRates": 52.5
+  },
+  {
+    "id": 144,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Kalayaan",
+    "newRates": 61.5
+  },
+  {
+    "id": 145,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Liliw",
+    "newRates": 53.5
+  },
+  {
+    "id": 146,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Luisiana",
+    "newRates": 61.5
+  },
+  {
+    "id": 147,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Lumbang",
+    "newRates": 58.5
+  },
+  {
+    "id": 148,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Mabitac",
+    "newRates": 52.5
+  },
+  {
+    "id": 149,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Magdalena",
+    "newRates": 56.5
+  },
+  {
+    "id": 150,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Majayjay",
+    "newRates": 60.7
+  },
+  {
+    "id": 151,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Nagcarlan",
+    "newRates": 58.5
+  },
+  {
+    "id": 152,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Pakil",
+    "newRates": 56.5
+  },
+  {
+    "id": 153,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Rizal",
+    "newRates": 55.5
+  },
+  {
+    "id": 154,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Siniloan",
+    "newRates": 59.5
+  },
+  {
+    "id": 155,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Sta. Cruz",
+    "newRates": 51.5
+  },
+  {
+    "id": 156,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "Sta. Maria",
+    "newRates": 54.5
+  },
+  {
+    "id": 157,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "San Pablo",
+    "newRates": 54.5
+  },
+  {
+    "id": 158,
+    "origin": "Bulacan",
+    "province": "Laguna",
+    "town": "San Pedro",
+    "newRates": 47.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Abra",
+    "town": "Abra",
+    "rate": 95,
+    "newRates": 84
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Calauag",
+    "rate": 88,
+    "newRates": 88.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Candelaria",
+    "rate": 61,
+    "newRates": 61.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Catanauan",
+    "rate": 65,
+    "newRates": 89.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Dolores",
+    "rate": 61,
+    "newRates": 61.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Gen. Nakar",
+    "rate": 77,
+    "newRates": 77.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Guinayangan",
+    "rate": 89,
+    "newRates": 89.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Infanta",
+    "rate": 73,
+    "newRates": 74.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Lopez",
+    "rate": 84,
+    "newRates": 84.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Lucban",
+    "rate": 67,
+    "newRates": 67.5
+  },
+  {
+    "id": 97,
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "lucena",
+    "newRates": 65.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Mauban",
+    "rate": 89,
+    "newRates": 75.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Pagbilao",
+    "rate": 70,
+    "newRates": 70.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Sampaloc",
+    "rate": 70,
+    "newRates": 70.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Sariaya",
+    "rate": 67,
+    "newRates": 67.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Tayabas",
+    "rate": 69,
+    "newRates": 69.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Tiaong",
+    "rate": 82,
+    "newRates": 82.5
+  },
+  {
+    "origin": "Bulacan",
+    "province": "Quezon",
+    "town": "Unisan",
+    "rate": 63,
+    "newRates": 63.5
+  }
+]
