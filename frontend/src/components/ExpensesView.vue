@@ -237,10 +237,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
-// Use production API URL in production, development URL in development
-const API_BASE_URL = import.meta.env.PROD
-  ? import.meta.env.VITE_API_BASE_URL_PRODUCTION || '/api'
-  : import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
 
 // Reactive data
 const expenses = ref([])
