@@ -88,54 +88,105 @@
       </table>
     </div>
 
-    <!-- Mobile Card View - Compact Design -->
-    <div class="trips-mobile-cards mobile-only">
-      <div
-        v-for="trip in filteredTrips"
-        :key="trip.id"
-        class="trip-card-compact"
-        @click="selectTrip(trip)"
-        :class="{ selected: selectedTrip && selectedTrip.id === trip.id }"
-      >
-        <!-- Compact Header -->
-        <div class="card-header-compact">
-          <div class="primary-info">
-            <span class="invoice-compact">{{ trip.invoiceNumber }}</span>
-            <span class="plate-compact">{{ trip.truckPlate }}</span>
-            <span class="bags-compact">{{ trip.numberOfBags || 0 }} bags</span>
-          </div>
-          <div class="total-compact">₱{{ trip._total || 0 }}</div>
-        </div>
+    <!-- Native Mobile App-Style List -->
+    <div class="mobile-native-list mobile-only">
+      <!-- Pull to Refresh Indicator -->
+      <div v-if="isRefreshing" class="pull-refresh-indicator">
+        <div class="refresh-spinner"></div>
+        <span class="refresh-text">Refreshing...</span>
+      </div>
 
-        <!-- Route Info -->
-        <div class="route-compact">
-          <div class="route-from">{{ trip.origin }}</div>
-          <div class="route-arrow">→</div>
-          <div class="route-to">{{ trip.fullDestination }}</div>
-        </div>
+      <!-- Trip Cards - Native Mobile Style -->
+      <div class="trip-native-card"
+           v-for="trip in filteredTrips"
+           :key="trip.id"
+           @click="selectTrip(trip)"
+           :class="{ selected: selectedTrip && selectedTrip.id === trip.id }"
+           @touchstart="handleTouchStart"
+           @touchend="handleTouchEnd($event, trip)">
 
-        <!-- Secondary Info -->
-        <div class="secondary-info">
-          <div class="crew-info">
-            <span class="driver-compact">{{ trip.driverName }}</span>
-            <span class="helper-compact" v-if="trip.helperName">• {{ trip.helperName }}</span>
+        <!-- Card Header -->
+        <div class="card-header-native">
+          <div class="trip-identifier">
+            <div class="invoice-badge">{{ trip.invoiceNumber }}</div>
+            <div class="plate-text">{{ trip.truckPlate }}</div>
           </div>
-          <div class="rate-info">
-            <span class="rate-compact" :class="{ 'rate-display': trip._rateFound, 'rate-warning': !trip._rateFound }">
+          <div class="trip-amount">
+            <div class="amount-primary">₱{{ formatCurrency(trip._total || 0) }}</div>
+            <div class="amount-secondary" :class="{ 'rate-display': trip._rateFound, 'rate-warning': !trip._rateFound }">
               {{ trip._rate ? `₱${trip._rate}` : '--' }}
-            </span>
+            </div>
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="card-actions-compact">
-          <button @click.stop="editTrip(trip)" class="btn-edit-compact" title="Edit Trip">
-            ✏️
+        <!-- Route Information -->
+        <div class="route-section">
+          <div class="route-visual">
+            <div class="route-dot origin-dot"></div>
+            <div class="route-line"></div>
+            <div class="route-dot destination-dot"></div>
+          </div>
+          <div class="route-details">
+            <div class="route-origin">
+              <div class="location-label">From</div>
+              <div class="location-name">{{ trip.origin }}</div>
+            </div>
+            <div class="route-destination">
+              <div class="location-label">To</div>
+              <div class="location-name">{{ trip.fullDestination }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crew & Details -->
+        <div class="crew-section">
+          <div class="crew-info">
+            <div class="crew-member driver">
+              <div class="member-icon">👤</div>
+              <div class="member-details">
+                <div class="member-role">Driver</div>
+                <div class="member-name">{{ trip.driverName }}</div>
+              </div>
+            </div>
+            <div class="crew-member helper" v-if="trip.helperName">
+              <div class="member-icon">👥</div>
+              <div class="member-details">
+                <div class="member-role">Helper</div>
+                <div class="member-name">{{ trip.helperName }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="trip-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📦</span>
+              <span class="meta-text">{{ trip.numberOfBags || 0 }} bags</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span class="meta-text">{{ formatDate(trip.date) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons - Native Style -->
+        <div class="action-buttons-native">
+          <button @click.stop="editTrip(trip)" class="btn-native edit-btn">
+            <span class="btn-icon">✏️</span>
+            <span class="btn-text">Edit</span>
           </button>
-          <button @click.stop="deleteTrip(trip.id)" class="btn-delete-compact" title="Delete Trip">
-            🗑️
+          <button @click.stop="deleteTrip(trip.id)" class="btn-native delete-btn">
+            <span class="btn-icon">🗑️</span>
+            <span class="btn-text">Delete</span>
           </button>
         </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="filteredTrips.length === 0" class="empty-state-native">
+        <div class="empty-icon">🚛</div>
+        <div class="empty-title">No trips found</div>
+        <div class="empty-subtitle">Try adjusting your filters or add a new trip</div>
       </div>
     </div>
 
@@ -213,6 +264,33 @@ const dateFilter = ref('')
 const selectedTrip = ref(null)
 const loading = ref(false)
 const employees = ref([])
+const isRefreshing = ref(false)
+
+// Touch handling for native mobile feel
+let touchStartY = 0
+let touchStartTime = 0
+
+// Native mobile touch handling
+const handleTouchStart = (event) => {
+  touchStartY = event.touches[0].clientY
+  touchStartTime = Date.now()
+}
+
+const handleTouchEnd = async (event, trip) => {
+  const touchEndY = event.changedTouches[0].clientY
+  const touchEndTime = Date.now()
+  const deltaY = touchStartY - touchEndY
+  const deltaTime = touchEndTime - touchStartTime
+
+  // Detect pull-to-refresh gesture (swipe down from top)
+  if (deltaY < -100 && deltaTime < 300 && touchStartY < 100) {
+    isRefreshing.value = true
+    await fetchData()
+    setTimeout(() => {
+      isRefreshing.value = false
+    }, 1000)
+  }
+}
 
 // Pagination state
 const currentPage = ref(1)
@@ -1392,6 +1470,452 @@ defineExpose({
 
   .pagination-controls {
     justify-content: center;
+  }
+}
+
+/* Native Mobile App-Style Cards */
+.mobile-native-list {
+  width: 100%;
+  padding: 0.5rem;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.trip-native-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.trip-native-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.trip-native-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.trip-native-card.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Card Header - Native Style */
+.card-header-native {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.trip-identifier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.invoice-badge {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e2e8f0;
+}
+
+.plate-text {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.trip-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.amount-primary {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #059669;
+  text-shadow: 0 1px 2px rgba(5, 150, 105, 0.1);
+}
+
+.amount-secondary {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.amount-secondary.rate-display {
+  color: #059669;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.amount-secondary.rate-warning {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* Route Section - Visual Route */
+.route-section {
+  padding: 1rem 1.5rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.route-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.route-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.origin-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.destination-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.route-line {
+  width: 2px;
+  height: 24px;
+  background: linear-gradient(to bottom, #10b981, #f59e0b);
+  border-radius: 1px;
+}
+
+.route-details {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.route-origin, .route-destination {
+  flex: 1;
+  text-align: center;
+}
+
+.location-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.location-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+/* Crew Section */
+.crew-section {
+  padding: 1rem 1.5rem;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.crew-info {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.crew-member {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.crew-member:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.member-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.member-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-role {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.125rem;
+}
+
+.member-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trip-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.meta-icon {
+  font-size: 0.9rem;
+}
+
+.meta-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Action Buttons - Native Style */
+.action-buttons-native {
+  padding: 1rem 1.5rem;
+  background: #fafbfc;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.btn-native {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-native:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.btn-native:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.edit-btn:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+.btn-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Pull to Refresh */
+.pull-refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.refresh-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.refresh-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Empty State */
+.empty-state-native {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  margin-top: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.empty-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+  .mobile-native-list {
+    padding: 0.25rem;
+  }
+
+  .trip-native-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .card-header-native {
+    padding: 1rem 1.25rem;
+  }
+
+  .route-section {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .crew-section {
+    padding: 0.875rem 1.25rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .crew-info {
+    width: 100%;
+  }
+
+  .crew-member {
+    flex: 1;
+  }
+
+  .trip-meta {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-buttons-native {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .btn-native {
+    padding: 0.625rem 1rem;
   }
 }
 
