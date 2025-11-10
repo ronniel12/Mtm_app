@@ -37,8 +37,8 @@
       </div>
     </div>
 
-    <!-- Payslip Card - Device Width Constrained -->
-    <div class="payslip-wrapper">
+    <!-- Desktop Payslip Card -->
+    <div class="payslip-wrapper desktop-only">
       <v-card class="payslip-card" elevation="3">
         <v-card-text class="payslip-content">
           <!-- Company Header -->
@@ -179,6 +179,131 @@
           </div>
         </v-card-text>
       </v-card>
+    </div>
+
+    <!-- Mobile Native Payslip Cards -->
+    <div class="mobile-payslip-cards mobile-only">
+      <!-- Payslip Header Card -->
+      <div class="payslip-header-card">
+        <div class="card-header-native">
+          <div class="payslip-identifier">
+            <div class="payslip-badge">PAYSLIP</div>
+            <div class="payslip-number">{{ payslipNumber }}</div>
+          </div>
+          <div class="payslip-amount">
+            <div class="amount-primary">₱{{ formatCurrency(netPay) }}</div>
+            <div class="amount-secondary">Net Pay</div>
+          </div>
+        </div>
+
+        <div class="employee-section">
+          <div class="employee-info">
+            <div class="employee-name">
+              <div class="name-label">👤 Employee</div>
+              <div class="name-value">{{ selectedEmployeeName }}</div>
+            </div>
+            <div class="period-info">
+              <div class="period-label">📅 Period</div>
+              <div class="period-value">{{ formatPeriod() }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trip Details Cards -->
+      <div v-for="(trip, index) in filteredEmployeeTrips" :key="trip.id" class="trip-detail-card">
+        <div class="card-header-native">
+          <div class="trip-identifier">
+            <div class="invoice-badge">{{ trip.invoiceNumber }}</div>
+            <div class="plate-text">{{ trip.truckPlate }}</div>
+          </div>
+          <div class="trip-amount">
+            <div class="amount-primary">₱{{ trip._rate && trip.numberOfBags ? formatCurrency((trip._rate - 4) * trip.numberOfBags * trip._commission) : '0.00' }}</div>
+            <div class="amount-secondary" :class="{ 'rate-display': trip._rate, 'rate-warning': !trip._rate }">
+              {{ trip._rate ? `₱${formatCurrency(trip._rate - 4)}` : '--' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="route-section">
+          <div class="route-visual">
+            <div class="route-dot origin-dot"></div>
+            <div class="route-line"></div>
+            <div class="route-dot destination-dot"></div>
+          </div>
+          <div class="route-details">
+            <div class="route-destination">
+              <div class="location-label">📍 Destination</div>
+              <div class="location-name">{{ trip.fullDestination }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trip-meta-section">
+          <div class="trip-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📦</span>
+              <span class="meta-text">{{ trip.numberOfBags }} bags</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">👤</span>
+              <span class="meta-text">{{ trip._role === 'D' ? 'Driver' : 'Helper' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span class="meta-text">{{ formatDateShort(trip.date) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <h3>💰 Payment Summary</h3>
+        </div>
+
+        <div class="summary-details">
+          <div class="summary-row">
+            <span class="summary-label">Gross Pay:</span>
+            <span class="summary-value">₱{{ formatCurrency(totalPay) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Total Bags:</span>
+            <span class="summary-value">{{ totalBags }}</span>
+          </div>
+
+          <div v-if="deductions.length > 0" class="deductions-breakdown">
+            <div class="deductions-header">
+              <span class="deductions-title">📊 Deductions:</span>
+            </div>
+            <div v-for="deduction in deductions" :key="deduction.name" class="deduction-item-mobile">
+              <span class="deduction-name-mobile">{{ deduction.name }}</span>
+              <span class="deduction-value-mobile">
+                {{ deduction.type === 'percentage' ? `${deduction.value}%` : `₱${formatCurrency(deduction.value)}` }}
+                (₱{{ formatCurrency(deduction.type === 'percentage' ? (totalPay * deduction.value / 100) : deduction.value) }})
+              </span>
+            </div>
+            <div class="total-deductions-mobile">
+              <span class="total-deductions-label">Total Deductions:</span>
+              <span class="total-deductions-value">-₱{{ formatCurrency(totalDeductions) }}</span>
+            </div>
+          </div>
+
+          <div class="net-pay-row-mobile">
+            <span class="net-pay-label">💵 Net Pay:</span>
+            <span class="net-pay-value">₱{{ formatCurrency(netPay) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prepared By Card -->
+      <div class="prepared-by-card">
+        <div class="prepared-by-content-mobile">
+          <span class="prepared-by-label-mobile">✍️ Prepared by:</span>
+          <span class="prepared-by-value-mobile">{{ preparedBy || '_______________________________' }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- Action Buttons -->
@@ -2181,6 +2306,562 @@ onMounted(() => {
 
   .payslip-table {
     font-size: 0.7rem !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE NATIVE PAYSLIP CARDS - Matching TripList Theme
+   ========================================================================== */
+
+.mobile-payslip-cards {
+  width: 100%;
+  padding: 0.5rem;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Payslip Header Card */
+.payslip-header-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.payslip-header-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Header - Native Style */
+.card-header-native {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.payslip-identifier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.payslip-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e2e8f0;
+}
+
+.payslip-number {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.payslip-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.amount-primary {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #059669;
+  text-shadow: 0 1px 2px rgba(5, 150, 105, 0.1);
+}
+
+.amount-secondary {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+/* Employee Section */
+.employee-section {
+  padding: 1rem 1.5rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.employee-name,
+.period-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.employee-name:hover,
+.period-info:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.name-label,
+.period-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.name-value,
+.period-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: right;
+}
+
+/* Trip Detail Cards */
+.trip-detail-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trip-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.trip-identifier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.invoice-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e2e8f0;
+}
+
+.plate-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.trip-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.rate-display {
+  color: #059669;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.rate-warning {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* Route Section - Visual Route */
+.route-section {
+  padding: 1rem 1.5rem;
+  background: #fafbfc;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.route-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.route-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.origin-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.destination-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.route-line {
+  width: 2px;
+  height: 24px;
+  background: linear-gradient(to bottom, #10b981, #f59e0b);
+  border-radius: 1px;
+}
+
+.route-details {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.route-origin,
+.route-destination {
+  flex: 1;
+  text-align: center;
+}
+
+.location-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.location-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+/* Trip Meta Section */
+.trip-meta-section {
+  padding: 1rem 1.5rem;
+  background: white;
+}
+
+.trip-meta {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  flex: 1;
+  justify-content: center;
+}
+
+.meta-icon {
+  font-size: 0.9rem;
+}
+
+.meta-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Summary Card */
+.summary-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.summary-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-header h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.summary-details {
+  padding: 1rem 1.5rem;
+  background: #fafbfc;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.summary-value {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+.deductions-breakdown {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.deductions-header {
+  margin-bottom: 0.75rem;
+}
+
+.deductions-title {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.85rem;
+}
+
+.deduction-item-mobile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.deduction-item-mobile:last-child {
+  border-bottom: none;
+}
+
+.deduction-name-mobile {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.8rem;
+}
+
+.deduction-value-mobile {
+  font-weight: 600;
+  color: #dc2626;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.total-deductions-mobile {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-deductions-label {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.total-deductions-value {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.net-pay-row-mobile {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 12px;
+  border: 2px solid #a7f3d0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.net-pay-label {
+  font-weight: 700;
+  color: #065f46;
+  font-size: 1rem;
+}
+
+.net-pay-value {
+  font-weight: 700;
+  color: #065f46;
+  font-size: 1.1rem;
+}
+
+/* Prepared By Card */
+.prepared-by-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prepared-by-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.prepared-by-content-mobile {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.prepared-by-label-mobile {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.prepared-by-value-mobile {
+  font-weight: 500;
+  color: #1e293b;
+  border-bottom: 1px dashed #9ca3af;
+  min-width: 200px;
+  text-align: center;
+  padding: 0.25rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+  .mobile-payslip-cards {
+    padding: 0.25rem;
+  }
+
+  .payslip-header-card,
+  .trip-detail-card,
+  .summary-card,
+  .prepared-by-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .card-header-native {
+    padding: 1rem 1.25rem;
+  }
+
+  .route-section {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .trip-meta-section {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .summary-details {
+    padding: 0.875rem 1.25rem;
+  }
+
+  .prepared-by-content-mobile {
+    padding: 1rem 1.25rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .prepared-by-value-mobile {
+    min-width: 150px;
+  }
+
+  .trip-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta-item {
+    justify-content: flex-start;
+  }
+}
+
+/* Desktop/Mobile Toggle */
+@media (min-width: 769px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
   }
 }
 </style>
