@@ -88,79 +88,53 @@
       </table>
     </div>
 
-    <!-- Mobile Card View -->
+    <!-- Mobile Card View - Compact Design -->
     <div class="trips-mobile-cards mobile-only">
       <div
         v-for="trip in filteredTrips"
         :key="trip.id"
-        class="trip-card"
+        class="trip-card-compact"
         @click="selectTrip(trip)"
         :class="{ selected: selectedTrip && selectedTrip.id === trip.id }"
       >
-        <div class="card-header">
-          <div class="card-title">
-            <span class="invoice-number">{{ trip.invoiceNumber }}</span>
-            <span class="date">{{ formatDate(trip.date) }}</span>
+        <!-- Compact Header -->
+        <div class="card-header-compact">
+          <div class="primary-info">
+            <span class="invoice-compact">{{ trip.invoiceNumber }}</span>
+            <span class="plate-compact">{{ trip.truckPlate }}</span>
+            <span class="bags-compact">{{ trip.numberOfBags || 0 }} bags</span>
           </div>
-          <div class="card-actions">
-            <button @click.stop="editTrip(trip)" class="btn-edit-mobile" title="Edit Trip">
-              ✏️
-            </button>
-            <button @click.stop="deleteTrip(trip.id)" class="btn-delete-mobile" title="Delete Trip">
-              🗑️
-            </button>
+          <div class="total-compact">₱{{ trip._total || 0 }}</div>
+        </div>
+
+        <!-- Route Info -->
+        <div class="route-compact">
+          <div class="route-from">{{ trip.origin }}</div>
+          <div class="route-arrow">→</div>
+          <div class="route-to">{{ trip.fullDestination }}</div>
+        </div>
+
+        <!-- Secondary Info -->
+        <div class="secondary-info">
+          <div class="crew-info">
+            <span class="driver-compact">{{ trip.driverName }}</span>
+            <span class="helper-compact" v-if="trip.helperName">• {{ trip.helperName }}</span>
+          </div>
+          <div class="rate-info">
+            <span class="rate-compact" :class="{ 'rate-display': trip._rateFound, 'rate-warning': !trip._rateFound }">
+              {{ trip._rate ? `₱${trip._rate}` : '--' }}
+            </span>
           </div>
         </div>
 
-        <div class="card-body">
-          <div class="card-row">
-            <div class="card-field">
-              <span class="field-label">Plate #:</span>
-              <span class="field-value">{{ trip.truckPlate }}</span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">Bags:</span>
-              <span class="field-value">{{ trip.numberOfBags || 0 }}</span>
-            </div>
-          </div>
-
-          <div class="card-row">
-            <div class="card-field full-width">
-              <span class="field-label">Origin:</span>
-              <span class="field-value">{{ trip.origin }}</span>
-            </div>
-          </div>
-
-          <div class="card-row">
-            <div class="card-field full-width">
-              <span class="field-label">Destination:</span>
-              <span class="field-value">{{ trip.fullDestination }}</span>
-            </div>
-          </div>
-
-          <div class="card-row">
-            <div class="card-field">
-              <span class="field-label">Driver:</span>
-              <span class="field-value">{{ trip.driverName }}</span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">Helper:</span>
-              <span class="field-value">{{ trip.helperName }}</span>
-            </div>
-          </div>
-
-          <div class="card-row">
-            <div class="card-field">
-              <span class="field-label">Rate:</span>
-              <span class="field-value" :class="{ 'rate-display': trip._rateFound, 'rate-warning': !trip._rateFound }">
-                {{ trip._rate ? `₱${trip._rate}` : trip._rateStatus || '--' }}
-              </span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">Total:</span>
-              <span class="field-value total-amount">₱{{ trip._total || 0 }}</span>
-            </div>
-          </div>
+        <!-- Actions -->
+        <div class="card-actions-compact">
+          <button @click.stop="editTrip(trip)" class="btn-edit-compact" title="Edit Trip">
+            ✏️
+          </button>
+          <button @click.stop="deleteTrip(trip.id)" class="btn-delete-compact" title="Delete Trip">
+            🗑️
+          </button>
         </div>
       </div>
     </div>
@@ -1039,10 +1013,216 @@ defineExpose({
 .trips-mobile-cards {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-top: 1rem;
 }
 
+/* Compact Mobile Card Design */
+.trip-card-compact {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  position: relative;
+}
+
+.trip-card-compact:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.trip-card-compact.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* Compact Header */
+.card-header-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.primary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.invoice-compact {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.plate-compact {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.bags-compact {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.total-compact {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #a7f3d0;
+}
+
+/* Route Information */
+.route-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #fafafa;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.route-from, .route-to {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-from {
+  text-align: left;
+}
+
+.route-to {
+  text-align: right;
+}
+
+.route-arrow {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Secondary Information */
+.secondary-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.crew-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.driver-compact {
+  color: #1e293b;
+}
+
+.helper-compact {
+  color: #64748b;
+}
+
+.rate-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rate-compact {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.rate-compact.rate-display {
+  color: #059669;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.rate-compact.rate-warning {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* Compact Actions */
+.card-actions-compact {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.trip-card-compact:hover .card-actions-compact {
+  opacity: 1;
+}
+
+.btn-edit-compact, .btn-delete-compact {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit-compact {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.btn-edit-compact:hover {
+  background: #fde68a;
+  transform: scale(1.1);
+}
+
+.btn-delete-compact {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-delete-compact:hover {
+  background: #fecaca;
+  transform: scale(1.1);
+}
+
+/* Legacy Mobile Card Styles (keeping for reference) */
 .trip-card {
   background: white;
   border-radius: 12px;
