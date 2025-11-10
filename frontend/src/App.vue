@@ -22,6 +22,7 @@ const showHistory = ref(false)
 const mobileMenuOpen = ref(false)
 const billingTab = ref('create')
 const payrollTab = ref('create')
+const tripListRef = ref(null)
 
 const trips = ref([])
 const employees = ref([])
@@ -51,7 +52,10 @@ const toggleForm = () => {
 const onTripAdded = () => {
   showForm.value = false
   editTrip.value = null
-  refreshKey.value++
+  // Refresh the trip list directly
+  if (tripListRef.value && tripListRef.value.fetchTrips) {
+    tripListRef.value.fetchTrips()
+  }
   fetchDashboardData()
 }
 
@@ -340,7 +344,7 @@ fetchDashboardData()
           <div v-if="showForm && !editTrip" class="mb-4 mb-md-6">
             <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="toggleForm" />
           </div>
-          <TripList :key="refreshKey" @tripEdit="onTripEdit" />
+          <TripList ref="tripListRef" :key="refreshKey" @tripEdit="onTripEdit" />
         </div>
 
         <!-- Settings Section -->
