@@ -161,6 +161,99 @@ async function createTables() {
       console.log('ℹ️ File attachment columns may already exist:', error.message);
     }
 
+    // ============================================================================
+    // MAINTENANCE SYSTEM TABLES
+    // ============================================================================
+
+    // Create maintenance_schedules table
+    await query(`
+      CREATE TABLE IF NOT EXISTS maintenance_schedules (
+        id SERIAL PRIMARY KEY,
+        vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+        maintenance_type VARCHAR(100) NOT NULL,
+        category VARCHAR(50) NOT NULL, -- preventive, documentation, safety
+        schedule_type VARCHAR(50) NOT NULL, -- time_based, mileage_based, document_based
+        frequency_value INTEGER NOT NULL,
+        frequency_unit VARCHAR(20) NOT NULL, -- days, weeks, months, years, km, miles
+        reminder_days INTEGER DEFAULT 7,
+        last_completed_date DATE,
+        next_due_date DATE,
+        next_due_mileage INTEGER,
+        status VARCHAR(20) DEFAULT 'active', -- active, paused, completed
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create vehicle_documents table
+    await query(`
+      CREATE TABLE IF NOT EXISTS vehicle_documents (
+        id SERIAL PRIMARY KEY,
+        vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+        document_type VARCHAR(100) NOT NULL, -- registration, insurance, permit, etc.
+        document_number VARCHAR(100),
+        issue_date DATE,
+        expiry_date DATE NOT NULL,
+        issuing_authority VARCHAR(200),
+        cost DECIMAL(10,2),
+        document_file_path TEXT,
+        reminder_sent BOOLEAN DEFAULT false,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create notification_preferences table
+    await query(`
+      CREATE TABLE IF NOT EXISTS notification_preferences (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER, -- Will be updated when user system is implemented
+        maintenance_type VARCHAR(100), -- specific type or 'all'
+        reminder_days INTEGER DEFAULT 7,
+        notification_methods TEXT, -- JSON array: ['sms', 'whatsapp', 'in_app', 'push']
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create notification_history table
+    await query(`
+      CREATE TABLE IF NOT EXISTS notification_history (
+        id SERIAL PRIMARY KEY,
+        vehicle_id INTEGER REFERENCES vehicles(id) ON DELETE CASCADE,
+        maintenance_schedule_id INTEGER REFERENCES maintenance_schedules(id) ON DELETE SET NULL,
+        notification_type VARCHAR(50) NOT NULL, -- reminder, overdue, completed
+        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        delivery_method VARCHAR(20) NOT NULL, -- sms, whatsapp, facebook, viber, in_app, push
+        status VARCHAR(20) DEFAULT 'sent', -- sent, failed, pending
+        message_content TEXT,
+        recipient_contact TEXT,
+        error_message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create user_contacts table for messaging
+    await query(`
+      CREATE TABLE IF NOT EXISTS user_contacts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER, -- Will be updated when user system is implemented
+        contact_type VARCHAR(20) NOT NULL, -- phone, whatsapp, facebook, viber
+        contact_value TEXT NOT NULL, -- phone number, messenger ID, etc.
+        is_primary BOOLEAN DEFAULT false,
+        verified BOOLEAN DEFAULT false,
+        verification_code VARCHAR(10),
+        last_used TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log('✅ Maintenance system tables created successfully!');
+
     // Create indexes for better performance
     console.log('Creating database indexes...');
 
@@ -209,6 +302,31 @@ async function createTables() {
     await query('CREATE INDEX IF NOT EXISTS idx_expenses_vehicle ON expenses(vehicle)');
     await query('CREATE INDEX IF NOT EXISTS idx_expenses_created_at ON expenses(created_at DESC)');
 
+    // Maintenance system indexes
+    await query('CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle_id ON maintenance_schedules(vehicle_id)');
+    await query('CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_type ON maintenance_schedules(maintenance_type)');
+    await query('CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_next_due ON maintenance_schedules(next_due_date)');
+    await query('CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_status ON maintenance_schedules(status)');
+    await query('CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_created_at ON maintenance_schedules(created_at DESC)');
+
+    await query('CREATE INDEX IF NOT EXISTS idx_vehicle_documents_vehicle_id ON vehicle_documents(vehicle_id)');
+    await query('CREATE INDEX IF NOT EXISTS idx_vehicle_documents_type ON vehicle_documents(document_type)');
+    await query('CREATE INDEX IF NOT EXISTS idx_vehicle_documents_expiry ON vehicle_documents(expiry_date)');
+    await query('CREATE INDEX IF NOT EXISTS idx_vehicle_documents_created_at ON vehicle_documents(created_at DESC)');
+
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_preferences_user_type ON notification_preferences(user_id, maintenance_type)');
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_preferences_active ON notification_preferences(is_active)');
+
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_history_vehicle ON notification_history(vehicle_id)');
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_history_schedule ON notification_history(maintenance_schedule_id)');
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_history_sent_at ON notification_history(sent_at DESC)');
+    await query('CREATE INDEX IF NOT EXISTS idx_notification_history_status ON notification_history(status)');
+
+    await query('CREATE INDEX IF NOT EXISTS idx_user_contacts_user_type ON user_contacts(user_id, contact_type)');
+    await query('CREATE INDEX IF NOT EXISTS idx_user_contacts_primary ON user_contacts(is_primary)');
+    await query('CREATE INDEX IF NOT EXISTS idx_user_contacts_verified ON user_contacts(verified)');
+
+    console.log('✅ All maintenance system indexes created successfully!');
     console.log('All tables and indexes created successfully!');
   } catch (error) {
     console.error('Error creating tables:', error);
