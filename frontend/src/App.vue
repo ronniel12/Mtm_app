@@ -1006,8 +1006,9 @@ table {
   table-layout: fixed !important;
 }
 
-/* Prevent any component from causing horizontal scroll */
-* {
+/* Prevent any component from causing horizontal scroll - but allow Vuetify scroll targets */
+/* Exclude Vuetify components that need proper scroll behavior */
+*:not(.v-overlay):not(.v-overlay__content):not(.v-menu):not(.v-menu__content):not(.v-dialog):not(.v-dialog__content) {
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
