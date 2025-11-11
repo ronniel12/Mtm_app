@@ -49,14 +49,48 @@ const toggleForm = () => {
   }
 }
 
-const onTripAdded = () => {
+const onTripAdded = async () => {
+  console.log('🔄 Trip operation completed, refreshing UI...')
+
   showForm.value = false
   editTrip.value = null
+
   // Force refresh by incrementing the key
   refreshKey.value++
-  fetchDashboardData()
-  // Directly refresh the trip list to ensure immediate UI update
-  tripListRef.value?.fetchTrips()
+
+  try {
+    // Refresh dashboard data
+    await fetchDashboardData()
+    console.log('✅ Dashboard data refreshed')
+
+    // Directly refresh the trip list with retry logic
+    if (tripListRef.value?.fetchTrips) {
+      await tripListRef.value.fetchTrips()
+      console.log('✅ Trip list refreshed successfully')
+    } else {
+      console.warn('⚠️ TripList ref not available, retrying in 500ms...')
+      // Retry after a short delay if ref isn't ready
+      setTimeout(async () => {
+        if (tripListRef.value?.fetchTrips) {
+          await tripListRef.value.fetchTrips()
+          console.log('✅ Trip list refreshed on retry')
+        } else {
+          console.error('❌ TripList ref still not available after retry')
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('❌ Error refreshing data after trip operation:', error)
+    // Still try to refresh trip list even if dashboard fails
+    try {
+      if (tripListRef.value?.fetchTrips) {
+        await tripListRef.value.fetchTrips()
+        console.log('✅ Trip list refreshed despite dashboard error')
+      }
+    } catch (tripError) {
+      console.error('❌ Trip list refresh also failed:', tripError)
+    }
+  }
 }
 
 const onTripEdit = (trip) => {

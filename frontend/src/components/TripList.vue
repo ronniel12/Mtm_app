@@ -305,6 +305,7 @@ onMounted(() => {
 })
 
 const fetchData = async () => {
+  console.log('🔄 TripList: Fetching trip data...')
   loading.value = true
   try {
     const [tripsResponse, employeesResponse] = await Promise.all([
@@ -314,6 +315,7 @@ const fetchData = async () => {
 
     // Data is already fully processed by the API with pre-calculated rates, names, and destinations
     trips.value = tripsResponse.data.trips
+    console.log(`✅ TripList: Loaded ${trips.value.length} trips`)
 
     // No additional frontend processing needed - API already provides:
     // - driverName, helperName (pre-resolved)
@@ -325,9 +327,10 @@ const fetchData = async () => {
     totalPages.value = tripsResponse.data.pagination.totalPages
 
     employees.value = employeesResponse.data
+    console.log(`✅ TripList: Loaded ${employees.value.length} employees`)
     // No need to calculate rates - already done on backend
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('❌ TripList: Error fetching data:', error)
   } finally {
     loading.value = false
   }
