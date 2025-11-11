@@ -93,6 +93,42 @@ const onTripEdit = (trip) => {
   showForm.value = true
 }
 
+const onTripDeleted = async () => {
+  console.log('🗑️ Trip deleted, refreshing UI...')
+
+  // Force refresh by incrementing the key - this forces TripList re-mount
+  refreshKey.value++
+  console.log('🔄 Forced TripList re-mount with key:', refreshKey.value)
+
+  try {
+    // Refresh dashboard data first
+    await fetchDashboardData()
+    console.log('✅ Dashboard data refreshed after delete')
+
+    // Small delay to ensure component has re-mounted
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // Reset to page 1 to ensure list is properly updated
+    if (tripListRef.value && typeof tripListRef.value.resetToPage1 === 'function') {
+      tripListRef.value.resetToPage1()
+      console.log('✅ Trip list reset to page 1 after delete')
+    }
+
+    // Force another refresh after page reset
+    if (tripListRef.value?.fetchTrips) {
+      await tripListRef.value.fetchTrips()
+      console.log('✅ Trip list refreshed successfully after delete')
+    } else {
+      console.warn('⚠️ TripList ref not available after re-mount')
+    }
+  } catch (error) {
+    console.error('❌ Error refreshing data after delete:', error)
+    // Force refresh even on error
+    refreshKey.value++
+    console.log('🔄 Forced refresh on delete error')
+  }
+}
+
 const fetchDashboardData = async () => {
   try {
     isLoading.value = true
@@ -373,7 +409,7 @@ fetchDashboardData()
           <div v-if="showForm && !editTrip" class="mb-4 mb-md-6">
             <TripForm :editTrip="editTrip" @tripAdded="onTripAdded" @cancel="toggleForm" />
           </div>
-          <TripList ref="tripListRef" :key="refreshKey" @tripEdit="onTripEdit" />
+          <TripList ref="tripListRef" :key="refreshKey" @tripEdit="onTripEdit" @tripDeleted="onTripDeleted" />
         </div>
 
         <!-- Settings Section -->

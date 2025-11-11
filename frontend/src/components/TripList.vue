@@ -298,7 +298,7 @@ const pageSize = ref(50)
 const totalTrips = ref(0)
 const totalPages = ref(0)
 
-const emit = defineEmits(['tripSelected', 'tripEdit'])
+const emit = defineEmits(['tripSelected', 'tripEdit', 'tripDeleted'])
 
 onMounted(() => {
   fetchData()
@@ -437,14 +437,19 @@ const editTrip = (trip) => {
 const deleteTrip = async (tripId) => {
     if (confirm('Are you sure you want to delete this trip?')) {
       try {
+        console.log('🗑️ Deleting trip:', tripId)
         await axios.delete(`${API_BASE_URL}/trips/${tripId}`)
-        await fetchTrips()
+        console.log('✅ Trip deleted successfully')
+
         // Clear selected trip if it was deleted
         if (selectedTrip.value && selectedTrip.value.id === tripId) {
           selectedTrip.value = null
         }
+
+        // Emit event to trigger the same refresh logic as create/update
+        emit('tripDeleted')
       } catch (error) {
-        console.error('Error deleting trip:', error)
+        console.error('❌ Error deleting trip:', error)
       }
     }
 }
