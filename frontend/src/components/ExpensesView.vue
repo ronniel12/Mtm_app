@@ -221,8 +221,8 @@
               <label>Vehicle</label>
               <select v-model="expenseForm.vehicle" class="form-input">
                 <option value="">Select Vehicle (Optional)</option>
-                <option v-for="vehicle in vehicles" :key="vehicle.id" :value="vehicle.plateNumber">
-                  {{ vehicle.plateNumber }}
+                <option v-for="vehicle in vehicles" :key="vehicle.id" :value="vehicle.plate_number">
+                  {{ vehicle.plate_number }}
                 </option>
               </select>
             </div>
@@ -478,12 +478,12 @@ const saveExpense = async () => {
 const editExpense = (expense) => {
   editingExpense.value = expense
   expenseForm.value = {
-    date: expense.date,
+    date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
     category: expense.category,
     description: expense.description,
     vehicle: expense.vehicle || '',
     amount: expense.amount,
-    paymentMethod: expense.paymentMethod || expense.payment_method || 'cash',
+    paymentMethod: expense.payment_method || expense.paymentMethod || 'cash',
     notes: expense.notes || ''
   }
   showAddExpense.value = true
