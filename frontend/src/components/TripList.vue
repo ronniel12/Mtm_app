@@ -304,31 +304,28 @@ onMounted(() => {
   fetchData()
 })
 
-const fetchData = async () => {
-  console.log('🔄 TripList: Fetching trip data...')
+const fetchData = async (forceRefresh = false) => {
+  console.log(`🔄 TripList: Fetching trip data... ${forceRefresh ? '(forced refresh)' : ''}`)
   loading.value = true
   try {
+    // Add cache-busting parameter for forced refresh
+    const cacheBust = forceRefresh ? `&_t=${Date.now()}` : ''
+
     const [tripsResponse, employeesResponse] = await Promise.all([
-      axios.get(`${API_BASE_URL}/trips/calculated?page=${currentPage.value}&limit=${pageSize.value}`),
-      axios.get(`${API_BASE_URL}/employees`)
+      axios.get(`${API_BASE_URL}/trips/calculated?page=${currentPage.value}&limit=${pageSize.value}${cacheBust}`),
+      axios.get(`${API_BASE_URL}/employees${cacheBust}`)
     ])
 
-    // Data is already fully processed by the API with pre-calculated rates, names, and destinations
-    trips.value = tripsResponse.data.trips
+    // Force reactivity update by creating new arrays
+    trips.value = [...tripsResponse.data.trips]
     console.log(`✅ TripList: Loaded ${trips.value.length} trips`)
-
-    // No additional frontend processing needed - API already provides:
-    // - driverName, helperName (pre-resolved)
-    // - fullDestination (pre-computed)
-    // - _rate, _total, _rateFound, _rateStatus (pre-calculated)
 
     // Update pagination metadata
     totalTrips.value = tripsResponse.data.pagination.total
     totalPages.value = tripsResponse.data.pagination.totalPages
 
-    employees.value = employeesResponse.data
+    employees.value = [...employeesResponse.data]
     console.log(`✅ TripList: Loaded ${employees.value.length} employees`)
-    // No need to calculate rates - already done on backend
   } catch (error) {
     console.error('❌ TripList: Error fetching data:', error)
   } finally {

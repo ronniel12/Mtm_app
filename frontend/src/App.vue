@@ -114,10 +114,10 @@ const onTripDeleted = async () => {
       console.log('✅ Trip list reset to page 1 after delete')
     }
 
-    // Force another refresh after page reset
+    // Force another refresh after page reset with cache busting
     if (tripListRef.value?.fetchTrips) {
-      await tripListRef.value.fetchTrips()
-      console.log('✅ Trip list refreshed successfully after delete')
+      await tripListRef.value.fetchTrips(true) // Pass true for forceRefresh
+      console.log('✅ Trip list refreshed successfully after delete (forced)')
     } else {
       console.warn('⚠️ TripList ref not available after re-mount')
     }
