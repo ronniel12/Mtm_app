@@ -477,7 +477,15 @@ const saveExpense = async () => {
 
 const editExpense = (expense) => {
   editingExpense.value = expense
-  expenseForm.value = { ...expense }
+  expenseForm.value = {
+    date: expense.date,
+    category: expense.category,
+    description: expense.description,
+    vehicle: expense.vehicle || '',
+    amount: expense.amount,
+    paymentMethod: expense.paymentMethod || expense.payment_method || 'cash',
+    notes: expense.notes || ''
+  }
   showAddExpense.value = true
 }
 
