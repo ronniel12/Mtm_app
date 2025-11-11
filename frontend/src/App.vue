@@ -11,6 +11,7 @@ import PayrollView from './components/PayrollView.vue'
 import PayslipHistory from './components/PayslipHistory.vue'
 import TollView from './components/TollView.vue'
 import ExpensesView from './components/ExpensesView.vue'
+import Maintenance from './components/Maintenance.vue'
 import axios from 'axios'
 import { API_BASE_URL } from '@/api/config'
 
@@ -466,15 +467,7 @@ fetchDashboardData()
 
         <!-- Maintenance Section -->
         <div v-if="activeSection === 'maintenance'" class="content-section">
-          <v-card class="pa-3 pa-md-6 text-center maintenance-card" elevation="2">
-            <v-icon size="60" size-md="80" color="grey-lighten-1" class="mb-3 mb-md-4">mdi-wrench</v-icon>
-            <h2 class="text-h6 text-md-h5 mb-2">Maintenance</h2>
-            <p class="text-body-2 text-md-body-1 text-grey mb-3 mb-md-4">Vehicle maintenance tracking</p>
-            <v-alert type="info" variant="tonal" class="maintenance-alert">
-              <template #prepend><v-icon>mdi-information</v-icon></template>
-              Maintenance Tracker Coming Soon - This section will track vehicle maintenance schedules and repair history.
-            </v-alert>
-          </v-card>
+          <Maintenance />
         </div>
 
         <!-- Payroll Section -->
