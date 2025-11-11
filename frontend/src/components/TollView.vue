@@ -51,7 +51,7 @@
                {{ isPaused ? '▶️' : '⏹️' }}
              </button>
            </th>
-           <th>Date</th>
+           <th class="date-header">Date</th>
            <th>Invoice #</th>
            <th>Plate #</th>
            <th>Origin</th>
@@ -1104,10 +1104,14 @@ const stopDrag = () => {
 // Toll controls drag functionality
 const startTollControlsDrag = (event) => {
   isDraggingTollControls.value = true;
-  const rect = event.target.getBoundingClientRect();
+
+  // Handle both mouse and touch events
+  const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+  const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+
   tollControlsDragOffset.value = {
-    x: event.clientX - tollControlsPosition.value.x,
-    y: event.clientY - tollControlsPosition.value.y
+    x: clientX - tollControlsPosition.value.x,
+    y: clientY - tollControlsPosition.value.y
   };
 
   // Add global event listeners
@@ -1126,9 +1130,10 @@ const dragTollControls = (event) => {
   const clientY = event.clientY || (event.touches && event.touches[0].clientY);
 
   if (clientX && clientY) {
+    // Allow dragging to viewport edges with minimal padding
     tollControlsPosition.value = {
-      x: Math.max(0, Math.min(window.innerWidth - 200, clientX - tollControlsDragOffset.value.x)),
-      y: Math.max(0, Math.min(window.innerHeight - 100, clientY - tollControlsDragOffset.value.y))
+      x: Math.max(0, Math.min(window.innerWidth - 50, clientX - tollControlsDragOffset.value.x)),
+      y: Math.max(0, Math.min(window.innerHeight - 50, clientY - tollControlsDragOffset.value.y))
     };
   }
 
@@ -1550,7 +1555,8 @@ const getDuplicateTooltip = (trip) => {
 }
 
 .checkbox-column,
-.date-cell {
+.date-cell,
+.date-header {
   position: sticky;
   background: white;
   z-index: 2;
@@ -1561,7 +1567,8 @@ const getDuplicateTooltip = (trip) => {
   border-right: 2px solid #dee2e6;
 }
 
-.date-cell {
+.date-cell,
+.date-header {
   left: 50px;
   border-right: 1px solid #dee2e6;
 }
@@ -1988,5 +1995,42 @@ const getDuplicateTooltip = (trip) => {
   background: #007bff;
   color: white;
   border-color: #007bff;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .pagination-info {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .page-numbers {
+    order: 2;
+    justify-content: center;
+  }
+
+  .pagination-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: auto;
+  }
+
+  .page-number {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: 35px;
+  }
 }
 </style>
