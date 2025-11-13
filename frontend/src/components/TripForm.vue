@@ -281,8 +281,8 @@ const submitForm = async () => {
   try {
     const data = { ...formData }
 
-    // Construct fullDestination if not already set (for manual entries)
-    if (!data.fullDestination && data.farmName && data.destination) {
+    // Always construct fullDestination from farmName + destination
+    if (data.farmName && data.destination) {
       const destinationParts = data.destination.split(' - ')
       if (destinationParts.length === 2) {
         data.fullDestination = `${data.farmName}, ${destinationParts[0]}, ${destinationParts[1]}`

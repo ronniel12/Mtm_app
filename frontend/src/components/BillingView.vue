@@ -13,6 +13,11 @@
         </div>
       </div>
 
+      <!-- Error Message -->
+      <div v-if="dateError" class="error-message">
+        <p class="error-text">{{ dateError }}</p>
+      </div>
+
       <!-- Signature Section -->
       <div class="signature-section">
         <div class="signature-group">
@@ -143,6 +148,8 @@ const filteredTrips = ref([])
 const preparedBy = ref('')
 const preparedDate = ref('')
 const billingNumber = ref('')
+const dateError = ref('')
+const isLoading = ref(false)
 
 // Computed properties
 const totalRevenue = computed(() => {
@@ -185,6 +192,27 @@ const formatCurrency = (amount) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(amount)
+}
+
+const validateDates = () => {
+  dateError.value = ''
+
+  // Check if both dates are provided
+  if (!startDate.value || !endDate.value) {
+    dateError.value = 'Please select both start and end dates'
+    return false
+  }
+
+  // Check if start date is before or equal to end date
+  const start = new Date(startDate.value)
+  const end = new Date(endDate.value)
+
+  if (start > end) {
+    dateError.value = 'Start date must be before or equal to end date'
+    return false
+  }
+
+  return true
 }
 
 const exportPDF = () => {
@@ -455,44 +483,28 @@ ${tableHTML}
   }
 }
 
-const filterTripsByDate = () => {
-  if (!startDate.value || !endDate.value) {
-    filteredTrips.value = [...trips.value]
+const filterTripsByDate = async () => {
+  // Validate dates first
+  if (!validateDates()) {
+    // Clear the table if dates are invalid
+    filteredTrips.value = []
     return
   }
 
-  // Create start date at the beginning of the day (00:00:00.000)
-  const start = new Date(startDate.value)
-  start.setHours(0, 0, 0, 0)
+  // Fetch data only when dates are valid
+  isLoading.value = true
+  try {
+    await fetchBillingData()
+    // Since we're now fetching filtered data from server, just show all loaded trips
+    filteredTrips.value = [...trips.value]
 
-  // Create end date at the end of the day (23:59:59.999)
-  const end = new Date(endDate.value)
-  end.setHours(23, 59, 59, 999)
-
-  console.log('Filtering trips:', {
-    startDate: startDate.value,
-    endDate: endDate.value,
-    startFilter: start.toISOString(),
-    endFilter: end.toISOString()
-  })
-
-  filteredTrips.value = trips.value.filter(trip => {
-    const tripDate = new Date(trip.date)
-    const isIncluded = tripDate >= start && tripDate <= end
-
-    if (!isIncluded) {
-      console.log('Excluded trip:', {
-        tripDate: trip.date,
-        parsedTripDate: tripDate.toISOString(),
-        isAfterStart: tripDate >= start,
-        isBeforeEnd: tripDate <= end
-      })
-    }
-
-    return isIncluded
-  })
-
-  console.log(`Filtered ${filteredTrips.value.length} trips out of ${trips.value.length}`)
+    console.log(`Loaded ${filteredTrips.value.length} trips within date range`)
+  } catch (error) {
+    console.error('Error loading billing data:', error)
+    filteredTrips.value = []
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const calculateTripRates = (tripsArray, ratesData) => {
@@ -650,10 +662,22 @@ const saveBilling = async () => {
 }
 
 const fetchBillingData = async () => {
+  // Only fetch if both dates are provided (should be validated before calling this)
+  if (!startDate.value || !endDate.value) {
+    console.warn('fetchBillingData called without valid dates')
+    return
+  }
+
   try {
+    // Build query parameters for date filtering
+    let queryParams = `limit=all&startDate=${startDate.value}&endDate=${endDate.value}`
+
+    // Add cache-busting to ensure fresh data after database updates
+    queryParams += `&_t=${Date.now()}`
+
     const [tripsRes, ratesRes] = await Promise.all([
-      axios.get(`${API_BASE_URL}/trips?limit=all`), // Get all trips for billing
-      axios.get(`${API_BASE_URL}/rates`)
+      axios.get(`${API_BASE_URL}/trips?${queryParams}`), // Get filtered trips for billing
+      axios.get(`${API_BASE_URL}/rates?t=${Date.now()}`)
     ])
 
     const tripsData = tripsRes.data.trips || tripsRes.data // Handle response
@@ -676,25 +700,17 @@ const fetchBillingData = async () => {
     calculateTripRates(mappedTrips, mappedRates)
 
     trips.value = mappedTrips
-    filteredTrips.value = [...mappedTrips] // Initially show all trips
-
-    // Optional: Set default date range to current month instead of all trips
-    // Uncomment the lines below if you prefer current month default:
-    // const now = new Date()
-    // const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-    // const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    // startDate.value = firstDay.toISOString().split('T')[0]
-    // endDate.value = lastDay.toISOString().split('T')[0]
-    // filterTripsByDate()
+    filteredTrips.value = [...mappedTrips] // Show filtered trips
 
   } catch (error) {
     console.error('Error fetching billing data:', error)
+    throw error // Re-throw to be handled by caller
   }
 }
 
 // Lifecycle
 onMounted(() => {
-  fetchBillingData()
+  // No initial data loading - wait for user to select dates
 })
 </script>
 
@@ -792,6 +808,22 @@ onMounted(() => {
   background: #0056b3 !important;
   border-color: #0056b3 !important;
   color: white !important;
+}
+
+/* Error Message */
+.error-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  color: #721c24;
+}
+
+.error-text {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Centered Company Header */

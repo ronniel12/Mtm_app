@@ -109,10 +109,40 @@ app.get('/api/trips/suggestions', async (req, res) => {
 
 app.get('/api/trips', async (req, res) => {
   try {
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
     const page = parseInt(req.query.page) || 1;
     const limitParam = req.query.limit;
     let limit, offset;
 
+    // Check if both startDate and endDate are provided and not empty
+    if (!startDate || !endDate || startDate.trim() === '' || endDate.trim() === '') {
+      console.log('🔍 DEBUG: Missing startDate or endDate, returning empty array');
+      console.log('  startDate:', startDate, 'endDate:', endDate);
+      return res.json({
+        trips: [],
+        pagination: {
+          page: 1,
+          limit: 0,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        }
+      });
+    }
+
+    // Build WHERE clause for date filtering
+    let whereClause = 'WHERE date >= $1 AND date <= $2';
+    let params = [startDate, endDate];
+    let paramCount = 3;
+
+    console.log('🔍 DEBUG: Date filtering parameters:');
+    console.log('  startDate:', startDate, 'type:', typeof startDate);
+    console.log('  endDate:', endDate, 'type:', typeof endDate);
+    console.log('  params:', params);
+
+    // Handle limit
     if (limitParam === 'all') {
       limit = null;
       offset = 0;
@@ -121,17 +151,31 @@ app.get('/api/trips', async (req, res) => {
       offset = (page - 1) * limit;
     }
 
-    const countResult = await query('SELECT COUNT(*) as total FROM trips');
+    // Get total count for pagination metadata (with date filter)
+    const countQuery = `SELECT COUNT(*) as total FROM trips ${whereClause}`;
+    console.log('🔍 DEBUG: Count query:', countQuery);
+    const countResult = await query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
+    console.log('🔍 DEBUG: Total count result:', total);
 
     let result;
     if (limit === null) {
-      result = await query('SELECT * FROM trips ORDER BY created_at DESC');
+      // Fetch all records without pagination (with date filter)
+      const queryStr = `SELECT * FROM trips ${whereClause} ORDER BY created_at DESC`;
+      console.log('🔍 DEBUG: Data query (all):', queryStr);
+      result = await query(queryStr, params);
     } else {
-      result = await query(
-        'SELECT * FROM trips ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-        [limit, offset]
-      );
+      // Get paginated results (with date filter)
+      const queryStr = `SELECT * FROM trips ${whereClause} ORDER BY created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+      console.log('🔍 DEBUG: Data query (paginated):', queryStr, 'params:', [...params, limit, offset]);
+      result = await query(queryStr, [...params, limit, offset]);
+    }
+
+    console.log('🔍 DEBUG: Query result count:', result.rows.length);
+    if (result.rows.length > 0) {
+      console.log('🔍 DEBUG: First few trip dates:', result.rows.slice(0, 3).map(r => r.date));
+    } else {
+      console.log('🔍 DEBUG: No trips found in date range');
     }
 
     const transformedTrips = result.rows.map(trip => {
