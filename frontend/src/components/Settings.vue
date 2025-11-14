@@ -358,12 +358,25 @@
       <div v-if="activeTab === 'rates'" class="tab-pane">
         <div class="section-header">
           <h4>Rate Management</h4>
-          <button @click="showAddRateForm = !showAddRateForm" class="btn-add" title="Add Rate/Toggle Form">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </button>
+          <div class="header-actions">
+            <button @click="checkRates" :disabled="isRefreshingRates" class="btn-check-rates" title="Check for updated rates">
+              <svg v-if="isRefreshingRates" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spinning">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+              </svg>
+              {{ isRefreshingRates ? 'Checking...' : 'Check Rates' }}
+            </button>
+            <button @click="showAddRateForm = !showAddRateForm" class="btn-add" title="Add Rate/Toggle Form">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Add Rate Form -->
@@ -724,6 +737,8 @@ const showEditRateModal = ref(false)
 const editingEmployee = ref(null)
 const editingVehicle = ref(null)
 const editingRate = ref(null)
+const isRefreshingRates = ref(false)
+const ratesLastUpdated = ref(null)
 const employeeForm = ref({
   name: '',
   phone: '',
@@ -1021,6 +1036,27 @@ const formatDate = (dateString) => {
   })
 }
 
+// Check Rates function - manual refresh for rates data
+const checkRates = async () => {
+  if (isRefreshingRates.value) return // Prevent multiple simultaneous requests
+
+  isRefreshingRates.value = true
+  try {
+    await fetchAllRates()
+    ratesLastUpdated.value = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+    // Could add a success notification here if desired
+  } catch (error) {
+    console.error('Error checking rates:', error)
+    alert('Failed to refresh rates. Please try again.')
+  } finally {
+    isRefreshingRates.value = false
+  }
+}
+
 // Helper function to get initials from name
 const getInitials = (name) => {
   if (!name) return 'U'
@@ -1119,6 +1155,53 @@ const getInitials = (name) => {
 .section-header h4 {
   margin: 0;
   color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-check-rates {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+}
+
+.btn-check-rates:hover:not(:disabled) {
+  background: #138496;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
+}
+
+.btn-check-rates:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .btn-add {
