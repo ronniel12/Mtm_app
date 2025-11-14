@@ -1,34 +1,44 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Get the connection string from environment variables
-const connectionString = process.env.DATABASE_URL;
+// Use environment variable with fallback for local development
+const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_HGRviFJ96Vkq@ep-frosty-firefly-ahljyrnl-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 const pool = new Pool({
   connectionString: connectionString,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 5, // Increased for better concurrency in serverless
-  min: 0, // Allow pool to empty entirely
-  idleTimeoutMillis: 30000, // Reduced to 30 seconds for serverless
-  connectionTimeoutMillis: 15000, // Increased timeout for Neon
-  acquireTimeoutMillis: 60000, // Timeout for acquiring connection from pool
+  ssl: { rejectUnauthorized: false }, // Always use SSL for both local and production
+  max: 1, // Reduced to 1 for serverless environments
+  min: 0, // No minimum connections for serverless
+  idleTimeoutMillis: 10000, // Reduced for faster cleanup
+  connectionTimeoutMillis: 10000, // Consistent timeout
+  maxUses: 7500, // Reset connections periodically
 });
 
-// Query helper function optimized for serverless
+// Test the connection
+pool.on('connect', () => {
+  console.log('Connected to PostgreSQL database');
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+// Query helper function
 const query = async (text, params) => {
-  const client = await pool.connect();
+  const start = Date.now();
   try {
-    const start = Date.now();
-    const res = await client.query(text, params);
+    const res = await pool.query(text, params);
     const duration = Date.now() - start;
     console.log('Executed query', { text, duration, rows: res.rowCount });
     return res;
-  } finally {
-    client.release(); // Always release the client back to the pool
+  } catch (err) {
+    console.error('Query error:', err);
+    throw err;
   }
 };
 
 module.exports = {
-  query,
-  pool
+  pool,
+  query
 };
